@@ -1,0 +1,39 @@
+{
+  "duration": 15.0,
+  "frames": 900,
+  "videoStream": "Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 3840x2160, 3795 kb/s, 60 fps, 60 tbr, 90k tbn (default)",
+  "audioStream": "Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 274 kb/s (default)",
+  "h264": true,
+  "aac": true,
+  "resolution": true,
+  "fps60": true,
+  "noBlackIntervals": true,
+  "loudnessLUFS": -15.15,
+  "truePeakDBTP": -4.22,
+  "bytes": 7657907,
+  "sha256": "740f76d40afc6507b064547977dd64ff5776bda6f3e0466fd5dda846a21601c0",
+  "perSecondAudioRmsDbfs": [
+    -18.05,
+    -18.73,
+    -25.95,
+    -30.32,
+    -17.51,
+    -16.03,
+    -18.31,
+    -16.87,
+    -18.22,
+    -28.82,
+    -30.44,
+    -16.84,
+    -21.62,
+    -15.19,
+    -25.14
+  ],
+  "sourceStemRmsDbfs": {
+    "narration": -19.23,
+    "music": -33.05,
+    "effects": -38.68
+  },
+  "final20msRmsDbfs": -200.0,
+  "fourDistinctMovingFrames": true
+}

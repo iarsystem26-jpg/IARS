@@ -1,0 +1,50 @@
+[
+  {
+    "id": "01-problem",
+    "start": 0.35,
+    "end": 7.75,
+    "text": "School attendance should be simple. But event lists, check-ins, and follow-ups? They can get messy."
+  },
+  {
+    "id": "02-agitation",
+    "start": 8.35,
+    "end": 14.7,
+    "text": "Students want answers. Officers need clear records. Let's bring it all together."
+  },
+  {
+    "id": "03-solution",
+    "start": 15.4,
+    "end": 24.65,
+    "text": "Meet IARS! The Institution Attendance and Records System. Attendance, events, and records, together for your school community."
+  },
+  {
+    "id": "04a-pass",
+    "start": 25.25,
+    "end": 28.85,
+    "text": "Students open their current QR pass."
+  },
+  {
+    "id": "04b-scan",
+    "start": 29.25,
+    "end": 36.15,
+    "text": "An authorized officer scans it, checks their identity, and records attendance."
+  },
+  {
+    "id": "04c-records",
+    "start": 36.6,
+    "end": 41.85,
+    "text": "Students review history. Officers filter records and download reports."
+  },
+  {
+    "id": "05-benefits",
+    "start": 42.35,
+    "end": 51.7,
+    "text": "Clearer check-ins. Organized records. Easier follow-up on hours and excuse requests, within each assigned role."
+  },
+  {
+    "id": "06-cta",
+    "start": 52.35,
+    "end": 59.2,
+    "text": "Ready to bring your school records together? Explore IARS, and log in with your school account."
+  }
+]

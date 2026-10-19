@@ -1,0 +1,57 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import puppeteer from 'puppeteer-core';
+import { createClient } from '@supabase/supabase-js';
+process.loadEnvFile('.env.local'); process.loadEnvFile('.env.server.local');
+const db=createClient(process.env.SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+const account=JSON.parse(fs.readFileSync('.demo-accounts.local','utf8')).find(a=>a.role==='admin');
+const checked=r=>{if(r.error)throw new Error(r.error.message);return r.data;};
+const nodes=checked(await db.from('rmc_nodes').select('id,parent_id,data'));
+const ancestors=node=>{const path=[node];while(path[0].parent_id){const parent=nodes.find(n=>n.id===path[0].parent_id);if(!parent)return [];path.unshift(parent);}return path;};
+const existing=nodes.find(n=>['section','block'].includes(n.data.type)&&n.parent_id&&ancestors(n).every(p=>!p.data.metadata?.archived));
+assert.ok(existing,'Need an existing active class hierarchy');
+const id=`verify-class-schedule-${Date.now()}`;
+const fixture={id,parent_id:existing.parent_id,data:{id,name:id,type:existing.data.type}};
+checked(await db.from('rmc_nodes').insert(fixture));
+const browser=await puppeteer.launch({executablePath:'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',headless:true});
+const page=await browser.newPage(); const errors=[];page.on('pageerror',e=>errors.push(e.message));
+const set=async(selector,value)=>page.$eval(selector,(el,v)=>{Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(el,v);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));},value);
+const click=async text=>{const h=await page.waitForFunction(t=>[...document.querySelectorAll('button')].find(b=>b.textContent.trim()===t&&!b.disabled),{},text);await h.asElement().click();};
+try {
+ await page.setViewport({width:1366,height:950});
+ await page.goto('http://127.0.0.1:3000/#/login',{waitUntil:'networkidle0'});
+ await page.waitForSelector('#landing-login-identifier');await page.type('#landing-login-identifier',account.username);await page.type('#landing-login-password',account.password);
+ await page.$eval('#landing-login-password',el=>el.closest('form').requestSubmit());
+ await page.waitForFunction(()=>location.hash!=='#/login',{timeout:40000});
+ await page.goto('http://127.0.0.1:3000/#/ssg/panel',{waitUntil:'networkidle0'});
+ for(const node of [...ancestors(existing).slice(0,-1),fixture]) {
+  const h=await page.waitForFunction(name=>[...document.querySelectorAll('h4')].find(h=>h.textContent.trim()===name)?.closest('button'),{},node.data.name);await h.asElement().click();
+ }
+ await click('Configure weekly class schedule');
+ await page.waitForSelector('[role="dialog"] [aria-label="Monday class status"]');
+ await page.select('[aria-label="Monday class status"]','classes');
+ await set('[aria-label="Monday timeIn"]','10:00');await set('[aria-label="Monday timeOut"]','12:00');
+ await page.select('[aria-label="Friday class status"]','no_class');
+ await click('Save class schedule');
+ await page.waitForFunction(()=>document.body.textContent.includes('Class schedule saved.'));
+ const saved=checked(await db.from('rmc_nodes').select('data').eq('id',id).single());
+ assert.deepEqual(saved.data.metadata.classSchedule,{'1':{status:'classes',timeIn:'10:00',timeOut:'12:00'},'5':{status:'no_class'}});
+ await page.$eval('[aria-label="Monday class status"]',el=>el.closest('fieldset').scrollIntoView({block:'start'}));
+ await page.screenshot({path:'artifacts/class-schedule-desktop.png'});
+ await page.setViewport({width:390,height:844});await page.waitForFunction(()=>document.querySelector('main').getBoundingClientRect().left<1);
+ assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Class editor mobile overflow');
+ await page.screenshot({path:'artifacts/class-schedule-mobile.png'});
+ await page.goto('http://127.0.0.1:3000/#/ssg/ceremonies/create',{waitUntil:'networkidle0'});
+ await click('Automatically predict dates');
+ await click('Filter exempt students by class or schedule');
+ const filter=await page.evaluateHandle(()=>[...document.querySelectorAll('label')].find(l=>l.textContent.startsWith('Exemption filter'))?.querySelector('select'));
+ await filter.asElement().select('timeIn');
+ await page.waitForFunction(()=>document.querySelector('[aria-label="Exemption preview"]')?.textContent.includes('in 1 classes'));
+ await page.$eval('[aria-label="Exemption preview"]',el=>el.scrollIntoView({block:'center'}));
+ assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Exemption filters mobile overflow');
+ await page.screenshot({path:'artifacts/exemption-filters-mobile.png'});
+ await page.setViewport({width:1366,height:950});
+ await page.screenshot({path:'artifacts/exemption-filters-desktop.png'});
+ assert.deepEqual(errors,[]);
+ console.log('PASS: hierarchy editor, authenticated schedule save, schedule-backed preview, desktop/mobile layouts.');
+} catch(error) { console.log(await page.evaluate(()=>[...document.querySelectorAll('[role=alert],[role=status]')].map(e=>e.textContent))); await page.screenshot({path:'artifacts/class-schedule-failure.png'}); throw error; } finally { await browser.close();checked(await db.from('rmc_nodes').delete().eq('id',id)); }

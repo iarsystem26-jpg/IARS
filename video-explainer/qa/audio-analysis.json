@@ -1,0 +1,92 @@
+{
+  "durationSeconds": 60,
+  "sampleRate": 48000,
+  "channels": 2,
+  "voiceSegments": [
+    {
+      "id": "01-problem",
+      "start": 0.35,
+      "end": 7.75,
+      "text": "School attendance should be simple. But event lists, check-ins, and follow-ups? They can get messy.",
+      "sourceDuration": 5.7214,
+      "speedApplied": 1.0,
+      "spokenEnd": 6.0628,
+      "voice": "en-US-EmmaNeural"
+    },
+    {
+      "id": "02-agitation",
+      "start": 8.35,
+      "end": 14.7,
+      "text": "Students want answers. Officers need clear records. Let's bring it all together.",
+      "sourceDuration": 5.1471,
+      "speedApplied": 1.0,
+      "spokenEnd": 13.4915,
+      "voice": "en-US-EmmaNeural"
+    },
+    {
+      "id": "03-solution",
+      "start": 15.4,
+      "end": 24.65,
+      "text": "Meet IARS! The Institution Attendance and Records System. Attendance, events, and records, together for your school community.",
+      "sourceDuration": 7.9583,
+      "speedApplied": 1.0,
+      "spokenEnd": 23.3521,
+      "voice": "en-US-EmmaNeural"
+    },
+    {
+      "id": "04a-pass",
+      "start": 25.25,
+      "end": 28.85,
+      "text": "Students open their current QR pass.",
+      "sourceDuration": 1.9648,
+      "speedApplied": 1.0,
+      "spokenEnd": 27.2078,
+      "voice": "en-US-EmmaNeural"
+    },
+    {
+      "id": "04b-scan",
+      "start": 29.25,
+      "end": 36.15,
+      "text": "An authorized officer scans it, checks their identity, and records attendance.",
+      "sourceDuration": 4.5908,
+      "speedApplied": 1.0,
+      "spokenEnd": 33.8356,
+      "voice": "en-US-EmmaNeural"
+    },
+    {
+      "id": "04c-records",
+      "start": 36.6,
+      "end": 41.85,
+      "text": "Students review history. Officers filter records and download reports.",
+      "sourceDuration": 4.3931,
+      "speedApplied": 1.0,
+      "spokenEnd": 40.9834,
+      "voice": "en-US-EmmaNeural"
+    },
+    {
+      "id": "05-benefits",
+      "start": 42.35,
+      "end": 51.7,
+      "text": "Clearer check-ins. Organized records. Easier follow-up on hours and excuse requests, within each assigned role.",
+      "sourceDuration": 7.1848,
+      "speedApplied": 1.0,
+      "spokenEnd": 49.5318,
+      "voice": "en-US-EmmaNeural"
+    },
+    {
+      "id": "06-cta",
+      "start": 52.35,
+      "end": 59.2,
+      "text": "Ready to bring your school records together? Explore IARS, and log in with your school account.",
+      "sourceDuration": 5.1213,
+      "speedApplied": 1.0,
+      "spokenEnd": 57.4678,
+      "voice": "en-US-EmmaNeural"
+    }
+  ],
+  "mixLoudnessLUFS": -16.0,
+  "mixTruePeakDBTP": -4.56,
+  "wordCount": 101,
+  "music": "Original procedural electronic score",
+  "sfx": "Original procedural synthesis"
+}

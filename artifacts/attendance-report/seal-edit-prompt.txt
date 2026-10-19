@@ -1,0 +1,6 @@
+Tool: built-in image_gen.imagegen
+Input: public/academic-seal.jpeg
+Output: public/academic-seal-transparent.png
+Transparent background: true
+
+Use case: background-extraction. Edit target: attached existing school seal. Create a faithful transparent PNG cutout for embedding small in a PDF report. Remove ONLY the exterior white background outside the complete emblem including the green laurel leaves and blue ribbon, and the exterior-connected white gaps between leaves and ribbon. Preserve the white circular interior backing within the black circular ring so the black text remains readable against a navy header. Preserve the logo shape, all artwork and colors, and ALL text exactly: RIZAL MEMORIAL COLLEGES, INC.; FOUNDED 2022; TAGUM CITY, PHILIPPINES; PRO DEO ET PATRIA. Preserve full ribbon and laurel; no cropping. Actual transparent alpha outside emblem, no checkerboard painted into output, no shadows, no extra border (border added in PDF code). Keep square canvas and existing composition centered. Do not redesign or reword anything.

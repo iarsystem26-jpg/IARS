@@ -1,0 +1,15 @@
+{
+  "fps": 60,
+  "framePair": [
+    60,
+    61
+  ],
+  "secondsApart": 0.016666666666666666,
+  "distinctSourceImages": true,
+  "differenceBounds": [
+    113,
+    0,
+    1920,
+    790
+  ]
+}

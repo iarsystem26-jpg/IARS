@@ -1,0 +1,36 @@
+{
+  "provider": "Microsoft Edge online neural TTS via edge-tts; existing project voice workflow",
+  "takes": [
+    {
+      "id": "problem",
+      "start": 0.35,
+      "end": 2.069125,
+      "duration": 1.719125,
+      "text": "Still sorting attendance by hand?",
+      "rate": "+0%",
+      "voice": "en-US-EmmaNeural"
+    },
+    {
+      "id": "solution",
+      "start": 4.25,
+      "end": 9.003208333333333,
+      "duration": 4.753208333333333,
+      "text": "With IARS, scan the student QR, verify their identity, and record attendance.",
+      "rate": "+0%",
+      "voice": "en-US-EmmaNeural"
+    },
+    {
+      "id": "cta",
+      "start": 11.45,
+      "end": 14.264583333333333,
+      "duration": 2.814583333333333,
+      "text": "Make attendance simpler. Log in to IARS.",
+      "rate": "+0%",
+      "voice": "en-US-EmmaNeural"
+    }
+  ],
+  "music": "Original procedural synthesis; no third-party samples",
+  "effects": "Original deterministic synthesis",
+  "peak_dbfs": -4.218848461512184,
+  "rms_dbfs": -18.9963655363785
+}

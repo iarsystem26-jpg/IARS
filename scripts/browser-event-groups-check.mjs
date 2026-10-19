@@ -1,0 +1,47 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import puppeteer from 'puppeteer-core';
+const accounts = JSON.parse(fs.readFileSync('.demo-accounts.local','utf8'));
+const browser = await puppeteer.launch({executablePath:process.env.CHROME_PATH || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',headless:true});
+const page = await browser.newPage();
+const fixture = '.event-banner-fixture.local.png';
+fs.writeFileSync(fixture, Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=', 'base64'));
+const errors=[]; page.on('pageerror',e=>errors.push(e.message));
+const base=process.env.AUDIT_BASE_URL || 'http://127.0.0.1:3001';
+const setInput=async(selector,value)=>page.$eval(selector,(input,value)=>{Object.getOwnPropertyDescriptor(input instanceof HTMLTextAreaElement?HTMLTextAreaElement.prototype:HTMLInputElement.prototype,'value').set.call(input,value);input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));},value);
+const click=async(text)=>{const el=await page.waitForFunction(text=>[...document.querySelectorAll('button,[role="option"]')].find(el=>el.textContent.trim()===text || el.getAttribute('aria-label')===text),{},text);await el.asElement().evaluate(button=>button.click());};
+try {
+ await page.setViewport({width:1280,height:900});
+ await page.goto(`${base}/#/login`,{waitUntil:'networkidle0'});
+ const account=accounts.find(a=>a.role==='admin');
+ await page.waitForSelector('#landing-login-identifier');
+ await setInput('#landing-login-identifier',account.username);
+ await setInput('#landing-login-password',account.password);
+ await page.$eval('#landing-login-password',el=>el.closest('form').requestSubmit());
+ await page.waitForFunction(()=>location.hash!=='#/login' && document.querySelector('main'),{timeout:40000});
+ await page.goto(`${base}/#/ssg/events`,{waitUntil:'networkidle0'});
+ await page.waitForFunction(()=>[...document.querySelectorAll('h2')].some(el=>el.textContent.includes('Active & Ongoing')),{timeout:30000});
+ const activeGroups = await page.evaluate(async()=>{const {appData}=await import('/lib/backend.ts');return appData.getEvents().filter(e=>e.isGeneralEvent && e.status==='active').map(e=>e.title);});
+ for (const title of activeGroups) assert.ok(await page.evaluate(title=>[...document.querySelectorAll('h2')].find(el=>el.textContent.includes('Active & Ongoing'))?.closest('section')?.textContent.includes(title),title));
+ await page.goto(`${base}/#/ssg/events/create`,{waitUntil:'networkidle0'});
+ await page.waitForSelector('#event-title');
+ const type=await page.waitForFunction(()=>[...document.querySelectorAll('button')].find(el=>el.getAttribute('aria-labelledby')?.split(' ').some(id=>document.getElementById(id)?.textContent==='Activity type')));
+ await type.asElement().evaluate(button=>button.click()); await click('General event (duration)');
+ await setInput('#event-title','Foundation Days');await setInput('#event-details','Three days of activities');
+ await (await page.$('#event-banner')).uploadFile(fixture);
+ await page.waitForSelector('img[alt="Event banner preview"]');
+ assert.ok(await page.$eval('#event-banner-help',el=>el.textContent.includes('1600 x 600 pixels')));
+ await click('Next: Schedule');
+ await page.waitForFunction(()=>document.querySelector('[role="progressbar"]')?.getAttribute('aria-valuenow')==='25');
+ await setInput('#event-start-date','2026-11-10'); await setInput('#event-end-date','2026-11-12');
+ assert.equal(await page.$('input[type="time"]'),null);
+ fs.mkdirSync('artifacts',{recursive:true});
+ for(const width of [1280,375]) {await page.setViewport({width,height:900});await page.waitForFunction(()=>document.documentElement.scrollWidth<=innerWidth+2,{timeout:5000});await page.screenshot({path:`artifacts/banner-layout-${width}.png`,fullPage:true});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2),false);await page.screenshot({path:`artifacts/general-event-duration-${width}.png`,fullPage:true});}
+ await click('Next: Attendees');await click('Next: Rules & Location');await click('Next: Review');
+ await page.waitForFunction(()=>document.body.textContent.includes('Review before scheduling'));
+ assert.equal(await page.$eval('button[type="submit"]',el=>el.disabled),false);
+ await page.waitForFunction(()=>[...document.querySelectorAll('img[alt="Event banner preview"]')].some(img=>img.naturalWidth>0));
+ await page.screenshot({path:'artifacts/event-banner-review-375.png',fullPage:true});
+ assert.deepEqual(errors,[]);
+ console.log('PASS active group placement, optional banner preview, size guidance, and desktop/mobile layouts');
+} finally {await browser.close(); fs.rmSync(fixture,{force:true});}

@@ -1,0 +1,14 @@
+{
+  "mode": "test",
+  "elapsedSeconds": 63.272,
+  "width": 1920,
+  "height": 1080,
+  "fps": 60,
+  "frames": 120,
+  "audioMounted": [
+    "narration.wav",
+    "music.wav",
+    "effects.wav"
+  ],
+  "muted": false
+}

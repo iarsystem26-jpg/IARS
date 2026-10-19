@@ -1,0 +1,12 @@
+{
+  "name": "IARS website traffic burst limit",
+  "description": "Limit sustained floods across pages and assets; generous initial ceiling for shared school networks. Review real traffic before tightening.",
+  "active": true,
+  "conditionGroup": [{ "conditions": [{ "type": "path", "op": "pre", "value": "/" }] }],
+  "action": {
+    "mitigate": {
+      "action": "rate_limit",
+      "rateLimit": { "algo": "fixed_window", "window": 60, "limit": 10000, "keys": ["ip", "ja4"], "action": "rate_limit" }
+    }
+  }
+}

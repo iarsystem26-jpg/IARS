@@ -1,0 +1,47 @@
+{
+  "name": "video-explainer",
+  "version": "1.0.0",
+  "description": "IARS 60-second product explainer — editable review edition",
+  "repository": {},
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@remotion/cli": "4.0.534",
+    "@remotion/fonts": "4.0.534",
+    "@remotion/media": "4.0.534",
+    "@remotion/transitions": "4.0.534",
+    "lucide-react": "0.562.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-qr-code": "2.0.18",
+    "remotion": "4.0.534"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "4.0.534",
+    "@types/react": "19.2.7",
+    "@types/web": "0.0.166",
+    "eslint": "9.39.5",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3"
+  },
+  "scripts": {
+    "ad:preview": "remotion studio --port=3100",
+    "ad:audio": "python scripts/advertisement-audio.py",
+    "ad:stills": "node scripts/advertisement-render.mjs stills",
+    "ad:test": "node scripts/advertisement-render.mjs test",
+    "ad:render": "node scripts/advertisement-render.mjs final",
+    "ad:verify": "python scripts/advertisement-verify.py",
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc",
+    "typecheck": "tsc --noEmit",
+    "render": "node scripts/render.mjs final",
+    "stills": "node scripts/render.mjs stills",
+    "audio:voice": "python scripts/neural-voice.py",
+    "audio:voice:local": "powershell -NoProfile -File scripts/voiceover.ps1",
+    "audio:mix": "python scripts/build-audio.py",
+    "assets": "node scripts/prepare-assets.mjs",
+    "verify": "python scripts/verify-render.py"
+  }
+}

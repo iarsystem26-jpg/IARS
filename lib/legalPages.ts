@@ -1,0 +1,134 @@
+import { privacyContact } from './legal';
+
+export type Section = { heading: string; paragraphs?: string[]; items?: string[] };
+export type LegalKind = 'privacy' | 'deletion' | 'agreement' | 'terms';
+export type LegalContent = { title: string; summary: string; sections: Section[] };
+export const defaultLegalPages: Record<LegalKind, LegalContent> = {
+  privacy: {
+    title: 'Privacy Policy',
+    summary: 'Learn what IARS uses, why it is needed, and how to ask questions about your information.',
+    sections: [
+      { heading: 'Who is responsible', paragraphs: [
+        `IARS supports the school’s attendance and student records services. The school that decides how these records are used is responsible for them.${privacyContact.school ? ` School: ${privacyContact.school}.` : ' Ask your school administration to confirm the responsible institution’s full name and address.'}`,
+        `For questions or requests, contact ${privacyContact.office}${privacyContact.email ? ` at ${privacyContact.email}` : '. Ask that office to connect you with the school’s Data Protection Officer, the person responsible for privacy concerns'}.`,
+      ] },
+      { heading: 'Information used by the app', items: [
+        'Account and enrollment details: name, username, email, student number, school, course or year level, section, application status, and assigned account permissions.',
+        'Profile photos and an emergency contact’s name and phone number. Tell your contact that their details are being provided to the school.',
+        'Event participation: QR passes, check-in and check-out times, attendance status, the officer recording attendance, and any related service hours or review decisions.',
+        'Excuse requests: your explanation, contact details, supporting document links, and the school’s decision. Supporting documents may include sensitive health information; provide only what is needed.',
+        'For location-checked attendance, the scanning officer’s device location and accuracy are submitted with the scan. This is a check at attendance recording, rather than continuous tracking of students.',
+        'Sign-in records and security activity. If you choose Google sign-in, the app verifies your Google identity and email; this does not give access to your Gmail messages.',
+      ] },
+      { heading: 'Why information is used', paragraphs: [
+        'The app uses these details to verify enrollment, provide account access, identify students, record event attendance, review excuses, manage school records, and help authorized officers resolve errors.',
+        'Education and health details have extra legal protection. The school must identify a permitted reason before using them. When permission is the reason, it must explain the specific purpose and obtain valid consent. Signing in or reading this notice alone is not consent to every use.',
+      ] },
+      { heading: 'Access, service providers, and public information', paragraphs: [
+        'Access within IARS depends on the user’s school role and assigned permissions. School officers may view records needed for their duties and export school reports. Exported copies also need protection.',
+        'Supabase provides the app’s sign-in and database services. Google services support Google sign-in and profile-photo storage. Fonts, maps, and some images may load from external services. These requests can disclose connection details, such as your IP address, to those providers. Provider processing may take place outside the Philippines; the school remains responsible for appropriate safeguards.',
+        'Profile photos use Google Drive image links. A photo may be viewable by someone who has its link; do not upload confidential documents as a profile photo. Public organization pages show approved organization information. The enrollment lookup accepts a student number and can show limited account previews, application status, and reviewer feedback. Avoid putting sensitive personal details in public organization content or lookup feedback.',
+        'The school must have a lawful basis for any further sharing, including disclosures required by law. This notice does not authorize advertising, sale of student records, or unrelated publication.',
+      ] },
+      { heading: 'Information saved on your device', paragraphs: [
+        'The browser keeps sign-in information and display preferences. When an authorized officer prepares offline attendance, student lists, QR-check information, and pending scans are also saved on that device until synchronized or removed. Use a trusted device and sign out after use. Clearing browser data does not delete records held by the school and may lose scans that have not been sent.',
+      ] },
+      { heading: 'How long records are kept', paragraphs: [
+        'Retention depends on the record’s purpose, applicable recordkeeping requirements, and the school’s approved retention schedule. This app does not publish a verified schedule or promise automatic deletion after a fixed period. Ask the privacy contact for the period or criteria that apply to your records.',
+        'Records should be securely erased or made unable to identify you when no longer needed, unless lawful retention is required. Backups, exported reports, and photo storage must be considered as well as the account itself.',
+      ] },
+      { heading: 'Your choices and rights', paragraphs: [
+        'You can ask what is held about you, request access or correction, object to certain uses, withdraw consent where it applies, and request removal or restriction when the law allows. You may also request an electronic copy where the right to data portability applies, seek compensation for harm, or complain to the National Privacy Commission. These rights have legal conditions; the school must explain any refusal.',
+        'Contact the privacy office to make a request. Provide enough information to locate your record, but never send your password or QR pass. For deletion steps, read the Data Deletion page. If you are under 18, ask a parent or legal guardian to help where their involvement is required.',
+      ] },
+      { heading: 'Security and updates', paragraphs: [
+        'The app uses account sign-in, permission checks, and attendance verification. No online service can guarantee that every incident will be prevented. Report suspected misuse promptly to the school; the school must assess incidents and make legally required notifications.',
+        'Changes to this notice should be explained before a new use begins. Where fresh consent is required, a notice update alone cannot replace it.',
+      ] },
+    ],
+  },
+  deletion: {
+    title: 'Data Deletion',
+    summary: 'How to ask the school to remove your account or personal information, and what to expect.',
+    sections: [
+      { heading: 'Submit a request to the school', paragraphs: [
+        'IARS does not currently offer a self-service account deletion button or an online deletion request form. Requests must be sent to the school’s privacy contact or submitted through its administration office.',
+      ], items: [
+        `Contact ${privacyContact.office}${privacyContact.email ? ` at ${privacyContact.email}` : ' and ask for the Data Protection Officer'}. Use the subject “IARS data deletion request”.`,
+        'Include your name, student number or account email, a safe reply contact, and the records you want removed. You may explain your reason, but do not send passwords, QR passes, or unnecessary identity documents.',
+        'Ask for confirmation of receipt. The school may need to verify that you own the record, or that you are authorized to act for the student, using only necessary information through a secure channel.',
+      ] },
+      { heading: 'What the request should cover', paragraphs: [
+        'Specify whether you want account closure, removal of a photo or document, correction of an incorrect entry, or deletion of personal information. Account deactivation or an application marked “deleted” does not by itself prove that all underlying information has been erased.',
+        'Ask the school to consider the sign-in account, enrollment application, profile, emergency contacts, attendance and excuse records, Google Drive files, authorized exports, and local copies. Some records may be removed while others must be retained.',
+      ] },
+      { heading: 'When records may need to stay', paragraphs: [
+        'Removal may be limited by a specific legal recordkeeping requirement, an ongoing legal claim, or another ground allowed under Philippine privacy law. The school should explain the records retained, the legal reason, how long or under what conditions they remain, and any restriction on their use. Retention must not be indefinite merely because storage is available.',
+        'Deleting an account can end access to attendance records and services. Ask for a copy of any records you need beforehand. Request deletion of backup and exported copies where applicable; do not assume that deleting the visible profile removes every copy immediately.',
+      ] },
+      { heading: 'Follow-up and other ways to get help', paragraphs: [
+        'The app has no verified deletion turnaround time. Ask the school for its response deadline and a written outcome. If your request is refused or unresolved, you may use the school’s complaint process and the National Privacy Commission’s complaint procedure.',
+        'Removing this app from your phone, signing out, disconnecting Google sign-in, or clearing browser storage does not remove school-held records. Officers with unsent offline scans should synchronize them before clearing local data.',
+      ] },
+    ],
+  },
+  agreement: {
+    title: 'Data Privacy Act Agreement',
+    summary: 'Understand the privacy responsibilities that apply when using IARS. Your legal rights remain yours.',
+    sections: [
+      { heading: 'Read the notice before providing details', paragraphs: [
+        'The Privacy Policy explains the app’s information use. Ask the school for clarification before providing information you do not understand. This page explains responsibilities; opening it, registering, or signing in does not record a separate privacy consent.',
+      ] },
+      { heading: 'Permission must be specific', paragraphs: [
+        'If the school needs your permission, it must first describe the information, purpose, recipients, retention, and your choices in a form you can understand. Permission must be freely given and recorded. Unrelated optional uses need a separate choice. Education and health information need a ground allowed for sensitive information.',
+        'You may withdraw consent for uses based on consent through the privacy contact. Withdrawal affects future use based on that permission; it does not automatically erase information lawfully used before withdrawal or records that must be kept under another valid legal ground. The school must explain any effect on a service and discuss an available alternative.',
+      ] },
+      { heading: 'Responsibilities of students and families', items: [
+        'Provide accurate details and only documents needed for the stated school purpose.',
+        'Inform an emergency contact before sharing their name and phone number. You cannot provide blanket permission on their behalf.',
+        'Keep passwords and attendance passes private. Report incorrect records or suspected misuse to the school.',
+        'For students under 18, involve a parent or legal guardian when their authorization is required. Listing an emergency contact does not prove guardian consent.',
+      ] },
+      { heading: 'Responsibilities of school officers', items: [
+        'Use only information necessary for an authorized school task, and explain the reason for collecting it.',
+        'Protect records and exports, restrict access, and avoid sharing photos or documents through public links unless that disclosure is justified and properly explained.',
+        'Apply the school’s approved retention rules and provide a way to exercise privacy rights.',
+        'Review disputed attendance and school decisions fairly. Automated records do not replace a student’s opportunity to explain or correct an error.',
+      ] },
+      { heading: 'Your rights are preserved', paragraphs: [
+        'Nothing on this page gives up your rights under the Data Privacy Act of 2012, authorizes every possible use, or replaces a required consent process. Contact the privacy office for requests or concerns and refer to the official guidance below.',
+      ] },
+    ],
+  },
+  terms: {
+    title: 'Terms of Service',
+    summary: 'The rules for using your school attendance and records account.',
+    sections: [
+      { heading: 'What IARS provides', paragraphs: [
+        'IARS helps enrolled students and authorized officers manage event attendance, student details, excuse requests, and school records. Available tools depend on account approval and assigned permissions. Registration for this account does not by itself establish school admission.',
+      ] },
+      { heading: 'Using your account', items: [
+        'Provide accurate enrollment details and update incorrect information through the school.',
+        'Use your own account and attendance pass. Do not share passwords, impersonate another student, falsify attendance, or submit misleading documents.',
+        'Do not access records without permission, interfere with the service, bypass attendance checks, or publish another person’s private information.',
+        'School officers must use records and downloaded reports only for authorized duties and keep them secure.',
+      ] },
+      { heading: 'Attendance, excuses, and school decisions', paragraphs: [
+        'Follow the event instructions and check that attendance was recorded successfully. A scan saved offline remains pending until the system accepts it after reconnection. If your device, location permission, or internet connection prevents check-in, ask the officer for help.',
+        'Attendance entries and calculated service hours support school review. They do not create a new penalty policy or make every recorded decision final. Applicable school rules and Philippine law govern any disciplinary action. Students may ask the responsible school office to correct records, review an excuse, and explain or reconsider a decision through the school’s established process.',
+      ] },
+      { heading: 'Privacy and documents', paragraphs: [
+        'Read the Privacy Policy before submitting personal information. You retain your rights in the material you provide. The school may use necessary documents for the stated school purpose under a valid legal ground; these terms do not grant an unrestricted license or authorize unrelated use.',
+      ] },
+      { heading: 'Availability and account restrictions', paragraphs: [
+        'Maintenance, connectivity, or service interruptions can affect access. Keep confirmation details and contact the school about missing records. Access may be restricted when an account is not approved, is deactivated by the school, or is used without authorization. Ask the school for the reason and the available review process; urgent restrictions may be necessary to protect accounts or records.',
+        'Account closure does not automatically erase records the school must lawfully retain. Follow the Data Deletion page to request removal.',
+      ] },
+      { heading: 'Philippine law and your rights', paragraphs: [
+        'Use of IARS is subject to applicable Philippine law. These terms do not remove statutory rights, excuse unlawful conduct, impose a blanket waiver of liability, or prevent access to competent Philippine authorities or courts. Contact the school to raise a service concern; privacy complaints may also be brought to the National Privacy Commission.',
+        'Material changes should be made available to users before they apply. Changes cannot retroactively authorize unlawful use of information. Any consent required for a new use must be obtained separately.',
+      ] },
+    ],
+  },
+};
+

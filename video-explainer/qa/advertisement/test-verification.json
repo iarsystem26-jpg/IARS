@@ -1,0 +1,20 @@
+{
+  "duration": 2.0,
+  "frames": 120,
+  "videoStream": "Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 1920x1080, 661 kb/s, 60 fps, 60 tbr, 90k tbn (default)",
+  "audioStream": "Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 262 kb/s (default)",
+  "h264": true,
+  "aac": true,
+  "resolution": true,
+  "fps60": true,
+  "noBlackIntervals": true,
+  "loudnessLUFS": -16.3,
+  "truePeakDBTP": -5.6,
+  "bytes": 236557,
+  "sha256": "4edd7fd5d8966c8fd274a3f17d64c9d32fd6ee369968386ff1bfd3b77ffcc55b",
+  "perSecondAudioRmsDbfs": [
+    -16.65,
+    -23.74
+  ],
+  "final20msRmsDbfs": -30.04
+}

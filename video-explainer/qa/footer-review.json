@@ -1,0 +1,23 @@
+{
+  "frames": [
+    1050,
+    1280,
+    1670,
+    2038,
+    2340,
+    2980
+  ],
+  "resolution": [
+    3840,
+    2160
+  ],
+  "designFooterBounds": {
+    "left": 120,
+    "top": 1016,
+    "right": 1800,
+    "bottom": 1040
+  },
+  "dividerY": 980,
+  "gapBelowDivider": 36,
+  "checked": "Source captures visually reviewed for UI/footer separation."
+}

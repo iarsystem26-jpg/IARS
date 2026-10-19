@@ -1,0 +1,12 @@
+{
+  "studio": {
+    "title": "IARS-Advertisement / video-explainer - Remotion Studio",
+    "errors": []
+  },
+  "site": {
+    "url": "https://rmcssg.vercel.app/",
+    "status": 200,
+    "iars": true,
+    "title": "Institution Attendance and Records System (IARS)"
+  }
+}

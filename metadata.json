@@ -1,0 +1,11 @@
+{
+  "name": "Institution Attendance and Records System (IARS)",
+  "description": "Institution Attendance and Records System (IARS) for tracking student attendance, ceremonies, events, and sanctions.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

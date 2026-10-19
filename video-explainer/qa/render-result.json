@@ -1,0 +1,17 @@
+{
+  "durationInFrames": 3600,
+  "fps": 60,
+  "width": 3840,
+  "height": 2160,
+  "designWidth": 1920,
+  "designHeight": 1080,
+  "elapsedSeconds": 2990.095,
+  "bytes": 62245343,
+  "codec": "h264",
+  "audioCodec": "aac",
+  "crf": 12,
+  "scale": 2,
+  "frameCaptureFormat": "png",
+  "x264Preset": "slow",
+  "colorSpace": "bt709"
+}

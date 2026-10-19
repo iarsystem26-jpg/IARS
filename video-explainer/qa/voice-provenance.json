@@ -1,0 +1,63 @@
+{
+  "voice": "en-US-EmmaNeural",
+  "provider": "Microsoft Edge online neural text-to-speech",
+  "rate": "+0%",
+  "pitch": "+0Hz",
+  "edition": "Review",
+  "takes": [
+    {
+      "id": "01-problem",
+      "duration": 5.7214,
+      "window": 7.4,
+      "speedApplied": 1.0
+    },
+    {
+      "id": "02-agitation",
+      "duration": 5.1471,
+      "window": 6.35,
+      "speedApplied": 1.0
+    },
+    {
+      "id": "03-solution",
+      "duration": 7.9583,
+      "window": 9.25,
+      "speedApplied": 1.0
+    },
+    {
+      "id": "04a-pass",
+      "duration": 1.9648,
+      "window": 3.6,
+      "speedApplied": 1.0
+    },
+    {
+      "id": "04b-scan",
+      "duration": 4.5908,
+      "window": 6.9,
+      "speedApplied": 1.0
+    },
+    {
+      "id": "04c-records",
+      "duration": 4.3931,
+      "window": 5.25,
+      "speedApplied": 1.0
+    },
+    {
+      "id": "05-benefits",
+      "duration": 7.1848,
+      "window": 9.35,
+      "speedApplied": 1.0
+    },
+    {
+      "id": "06-cta",
+      "duration": 5.1213,
+      "window": 6.85,
+      "speedApplied": 1.0
+    }
+  ],
+  "voiceCharacteristics": [
+    "Cheerful",
+    "Clear",
+    "Conversational"
+  ],
+  "deliveryDirection": "Bright and engaging SaaS narration; conversational questions, upbeat product reveal, inviting CTA."
+}

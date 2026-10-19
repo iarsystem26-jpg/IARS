@@ -1,0 +1,18 @@
+{
+  "mp4Exists": true,
+  "containerDurationSeconds": 60.0,
+  "decodedFrames": 3600,
+  "resolution3840x2160": true,
+  "fps60": true,
+  "h264": true,
+  "aacStereo": true,
+  "allFramesDecoded": true,
+  "noBlackSegments": true,
+  "loudnessLUFS": -16.01,
+  "truePeakDBTP": -4.57,
+  "bytes": 62245343,
+  "sha256": "e75c047cd87c79a883b526dcbcd9cf583fdb9c7e91bdc05cf8c3022a11f6f8e1",
+  "videoStream": "Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 3840x2160, 8014 kb/s, 60 fps, 60 tbr, 90k tbn (default)",
+  "audioStream": "Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 271 kb/s (default)",
+  "consecutiveMotionFramesDiffer": true
+}

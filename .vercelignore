@@ -1,0 +1,23 @@
+# Only deploy application sources and build assets, never local verification data.
+.*
+*.log
+*.local
+*.local.*
+node_modules/
+dist/
+dist-ssr/
+artifacts/
+logs/
+docs/
+tests/
+scripts/
+supabase/
+google-apps-script/
+video-explainer/node_modules/
+video-explainer/src/
+video-explainer/qa/
+video-explainer/public/
+video-explainer/out/
+**/*.test.ts
+**/*.test.tsx
+**/*.sql

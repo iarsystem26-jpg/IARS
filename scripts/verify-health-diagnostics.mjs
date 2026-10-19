@@ -1,0 +1,93 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import puppeteer from 'puppeteer-core';
+import { createClient } from '@supabase/supabase-js';
+process.loadEnvFile('.env.local');
+process.loadEnvFile('.env.server.local');
+const options = { auth: { persistSession: false, autoRefreshToken: false } };
+const client = () => createClient(process.env.SUPABASE_URL, process.env.VITE_SUPABASE_PUBLISHABLE_KEY, options);
+const service = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, options);
+const accounts = JSON.parse(fs.readFileSync('.demo-accounts.local', 'utf8'));
+const prefix = `verify-health-${Date.now()}`;
+const base = process.env.AUDIT_BASE_URL || 'http://127.0.0.1:3000';
+const checked = r => { if (r.error) throw new Error(r.error.message); return r.data; };
+const browser = await puppeteer.launch({ executablePath: process.env.CHROME_PATH || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', headless: true });
+async function login(page, role) {
+  const account = accounts.find(row => row.role === role);
+  assert.ok(account, `Missing ${role} test account`);
+  await page.goto(`${base}/#/login`, { waitUntil: 'networkidle0' });
+  await page.waitForSelector('#landing-login-identifier');
+  await page.type('#landing-login-identifier', account.username);
+  await page.type('#landing-login-password', account.password);
+  await page.$eval('#landing-login-password', input => input.closest('form').requestSubmit());
+  await page.waitForFunction(() => !location.hash.startsWith('#/login') && document.querySelector('main'), { timeout: 45000 });
+}
+try {
+  const studentApi = client();
+  const account = accounts.find(row => row.role === 'student');
+  const session = checked(await studentApi.functions.invoke('rmc-login', { body: { identifier: account.username, password: account.password } }));
+  checked(await studentApi.auth.setSession(session));
+  const before = checked(await studentApi.from('rmc_client_errors').select('*').limit(1));
+  assert.equal(before.length, 0, 'Student must not read shared error reports');
+  assert.ok((await studentApi.from('rmc_client_errors').insert({ source: 'console.error', message: prefix, details: '', route: '/', reporter_id: crypto.randomUUID() })).error, 'Reporter identity must not be spoofable');
+  assert.ok((await client().from('rmc_client_errors').select('*')).error, 'Anonymous reads must be denied');
+  checked(await studentApi.from('rmc_client_errors').insert({ source: 'console.error', message: `${prefix}-api`, details: '', route: '/' }));
+  checked(await service.from('rmc_client_errors').delete().eq('message', `${prefix}-api`));
+  console.log('PASS shared-report access and reporter identity protection');
+  const studentContext = await browser.createBrowserContext();
+  const studentPage = await studentContext.newPage();
+  await login(studentPage, 'student');
+  await studentPage.evaluate(prefix => {
+    console.error(`${prefix} network request failed`, { message: 'Network fetch failed', args: { password: 'DO-NOT-COLLECT' }, errorRaw: 'DO-NOT-COLLECT' });
+    window.dispatchEvent(new ErrorEvent('error', { message: `${prefix} unexpected crash`, error: new TypeError(`${prefix} unexpected crash`) }));
+    window.dispatchEvent(new Event('online'));
+  }, prefix);
+  const deadline = Date.now() + 60000;
+  let reports = [];
+  while (Date.now() < deadline) {
+    reports = checked(await service.from('rmc_client_errors').select('*').like('message', `%${prefix}%`));
+    if (reports.length >= 2) break;
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+  assert.equal(reports.length, 2, 'Browser console and uncaught errors should sync');
+  assert.ok(reports.every(row => !row.details.includes('DO-NOT-COLLECT')), 'Request arguments and raw payload must be excluded');
+  console.log('PASS console and uncaught errors synchronize from a student browser');
+  const adminApi = client();
+  const adminAccount = accounts.find(row => row.role === 'admin');
+  const adminSession = checked(await adminApi.functions.invoke('rmc-login', { body: { identifier: adminAccount.username, password: adminAccount.password } }));
+  checked(await adminApi.auth.setSession(adminSession));
+  const criticalReport = reports.find(row => row.details.includes('TypeError'));
+  checked(await adminApi.from('rmc_client_errors').insert({ source: criticalReport.source, message: criticalReport.message, details: criticalReport.details, route: criticalReport.route, occurrences: 1 }));
+  const page = await browser.newPage();
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.setViewport({ width: 1440, height: 1000 });
+  await login(page, 'admin');
+  await page.goto(`${base}/#/admin/controls?tab=health`, { waitUntil: 'networkidle0' });
+  await page.waitForSelector('table[aria-label="Errors ranked by fixing urgency"]');
+  await page.waitForFunction(() => document.body.textContent.includes('An unexpected error may interrupt the app.'));
+  const rows = await page.$$eval('table[aria-label="Errors ranked by fixing urgency"] tbody tr', els => els.map(el => el.textContent));
+  assert.ok(rows[0].includes('Critical'), 'Critical error should rank first');
+  const criticalCells = await page.$$eval('table[aria-label="Errors ranked by fixing urgency"] tbody tr:first-child td', els => els.map(el => el.textContent));
+  assert.equal(criticalCells[2], '2', 'Repeated errors should be grouped');
+  assert.equal(criticalCells[3], '2', 'Both affected accounts should be counted');
+  await page.$eval('table[aria-label="Errors ranked by fixing urgency"] details', el => el.open = true);
+  assert.ok(await page.$eval('table[aria-label="Errors ranked by fixing urgency"]', el => el.textContent.includes('TypeError')), 'Console detail should be expandable');
+  await page.evaluate(() => [...document.querySelectorAll('button')].find(el => el.textContent.includes('Refresh live data')).click());
+  await page.waitForFunction(() => !document.body.textContent.includes('Refreshing…'), { timeout: 30000 });
+  await page.waitForSelector('[aria-label^="Snapshot response times"]');
+  assert.ok(await page.$('table[aria-label="Security audit activity"]'));
+  fs.mkdirSync('artifacts/health-diagnostics', { recursive: true });
+  await page.screenshot({ path: 'artifacts/health-diagnostics/desktop.png', fullPage: true });
+  await page.select('select[aria-label="Filter error priority"]', 'Low');
+  assert.ok(await page.$eval('table[aria-label="Errors ranked by fixing urgency"]', el => el.textContent.includes('No errors match these filters.')));
+  await page.select('select[aria-label="Filter error priority"]', 'All priorities');
+  await page.setViewport({ width: 390, height: 844 });
+  await page.screenshot({ path: 'artifacts/health-diagnostics/mobile.png', fullPage: true });
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth), false, 'Mobile page should not overflow horizontally');
+  assert.equal(errors.length, 0, `Unexpected browser errors: ${errors.join(', ')}`);
+  console.log('PASS priority ordering, expandable details, live refresh, chart, filtering, desktop and mobile layout');
+} finally {
+  await service.from('rmc_client_errors').delete().like('message', `%${prefix}%`);
+  await browser.close();
+}

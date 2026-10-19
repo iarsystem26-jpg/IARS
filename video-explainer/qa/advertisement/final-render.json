@@ -1,0 +1,14 @@
+{
+  "mode": "final",
+  "elapsedSeconds": 481.521,
+  "width": 3840,
+  "height": 2160,
+  "fps": 60,
+  "frames": 900,
+  "audioMounted": [
+    "narration.wav",
+    "music.wav",
+    "effects.wav"
+  ],
+  "muted": false
+}
