@@ -33,7 +33,7 @@ public static class RmcSupabaseCredential {
 $managementToken = [RmcSupabaseCredential]::Token()
 if (!$managementToken.StartsWith('sbp_')) { throw 'Unexpected Supabase CLI credential format.' }
 $headers = @{ Authorization = "Bearer $managementToken" }
-$endpoint = 'https://api.supabase.com/v1/projects/iqnjyebkcetcmwammxff/config/auth'
+$endpoint = 'https://api.supabase.com/v1/projects/hmgadsnbdgrtojkoranv/config/auth'
 $current = Invoke-RestMethod -Uri $endpoint -Headers $headers -Method Get
 if ($Apply) {
   if (!$env:VITE_GOOGLE_CLIENT_ID -or !$env:GOOGLE_CLIENT_SECRET) { throw 'Google credentials are required in the process environment.' }
@@ -49,6 +49,6 @@ if ($Apply) {
   SecretConfigured = [bool]$current.external_google_secret
   NonceChecksEnabled = ($current.external_google_skip_nonce_check -eq $false)
   SiteUrl = $current.site_url
-  CallbackUrl = 'https://iqnjyebkcetcmwammxff.supabase.co/auth/v1/callback'
+  CallbackUrl = 'https://hmgadsnbdgrtojkoranv.supabase.co/auth/v1/callback'
 } | ConvertTo-Json -Compress
 $managementToken = $null; $headers = $null; $current = $null

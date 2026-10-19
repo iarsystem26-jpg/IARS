@@ -1,5 +1,5 @@
 export type AuthEmailMessage = { to: string; subject: string; text: string; html: string; logoUrl: string };
-export const EMAIL_SITE = 'https://rmcssg.vercel.app';
+export const EMAIL_SITE = 'https://iars-tau.vercel.app';
 export const EMAIL_LOGO = `${EMAIL_SITE}/academic-seal-transparent.png`;
 const escape = (value: string) => value.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]!);
 

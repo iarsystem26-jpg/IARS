@@ -9,16 +9,16 @@ import { validatePublicEnvironment } from '../security.config.mjs';
 process.loadEnvFile('.env.local');
 if (fs.existsSync('.env.server.local')) process.loadEnvFile('.env.server.local');
 const project = JSON.parse(fs.readFileSync('.vercel/project.json', 'utf8'));
-if (project.projectName !== 'rmcssg') throw new Error('Expected the rmcssg Vercel project. Link the correct project first.');
+if (project.projectName !== 'iars') throw new Error('Expected the iars Vercel project. Link the correct project first.');
 const supabaseRef = fs.readFileSync('supabase/.temp/project-ref', 'utf8').trim();
-if (supabaseRef !== 'iqnjyebkcetcmwammxff') throw new Error('Expected the attendance Supabase project.');
+if (supabaseRef !== 'hmgadsnbdgrtojkoranv') throw new Error('Expected the IARS Supabase project.');
 validatePublicEnvironment(process.env);
 if (new URL(process.env.VITE_SUPABASE_URL).hostname !== `${supabaseRef}.supabase.co`) throw new Error('The frontend Supabase URL does not match the linked project.');
 
 const vercelCli = process.env.RMC_VERCEL_CLI || path.join(process.env.APPDATA || '', 'npm', 'node_modules', 'vercel', 'dist', 'vc.js');
 const supabaseCli = path.join('node_modules', '@supabase', process.platform === 'win32' ? 'cli-windows-x64' : 'cli-linux-x64', 'bin', process.platform === 'win32' ? 'supabase.exe' : 'supabase');
 if (!fs.existsSync(vercelCli)) throw new Error('Set RMC_VERCEL_CLI to the installed Vercel CLI JavaScript entrypoint.');
-const names = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_PUBLISHABLE_KEY', 'VITE_SHOW_TEST_ACCOUNTS', 'VITE_GOOGLE_DRIVE_GAS_URL', 'VITE_GOOGLE_CLIENT_ID'];
+const names = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_PUBLISHABLE_KEY', 'VITE_PASSKEY_RP_ID', 'VITE_SHOW_TEST_ACCOUNTS', 'VITE_GOOGLE_DRIVE_GAS_URL', 'VITE_GOOGLE_CLIENT_ID'];
 for (const name of names) {
   const value = process.env[name]?.trim();
   if (!value) { console.log(`SKIP ${name}: no local value`); continue; }

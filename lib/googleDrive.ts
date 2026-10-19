@@ -2,8 +2,7 @@ import { toast, type OperationProgress } from './toast';
 import { supabase } from './supabase';
 import { retainedUploadFile } from './fileUploads';
 
-const DEFAULT_GOOGLE_DRIVE_GAS_URL = 'https://script.google.com/macros/s/AKfycby2BH5kpT9BN1BX2ODlGmjz6oIbKnbChfZuCAv2QDDcLvVbGB0RJXz1uaJ1eTHJ_t8/exec';
-export const GOOGLE_DRIVE_GAS_URL = import.meta.env.VITE_GOOGLE_DRIVE_GAS_URL || DEFAULT_GOOGLE_DRIVE_GAS_URL;
+export const GOOGLE_DRIVE_GAS_URL = import.meta.env.VITE_GOOGLE_DRIVE_GAS_URL || '';
 export const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 export const PROFILE_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
 
@@ -85,6 +84,7 @@ function readableResponseError(text: string, status: number) {
 }
 
 async function request<T = DriveResponse>(body: Record<string, unknown>, progress: OperationProgress): Promise<T> {
+  if (!GOOGLE_DRIVE_GAS_URL) throw new Error('Photo uploads are temporarily unavailable. Please try again after the image service is configured.');
   const { data: { session } } = await supabase.auth.getSession();
   const managementToken = body.action === 'create' ? crypto.randomUUID() + crypto.randomUUID()
     : typeof body.fileId === 'string' ? readCapability(body.fileId) : null;

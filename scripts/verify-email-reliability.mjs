@@ -9,7 +9,7 @@ const user=await admin.auth.admin.getUserById(fixture.uid);
 if(user.error || user.data.user?.email!==fixture.email)throw new Error('Test fixture identity does not match.');
 // Generates a recovery token for the existing test fixture; never sends an email,
 // changes a password, creates an account, or logs an authentication token.
-const message=await prepareEmailIntent(admin,{kind:'intent',userId:fixture.uid,email:fixture.email,recipient:fixture.email,action:'recovery',redirect:'https://rmcssg.vercel.app/'});
+const message=await prepareEmailIntent(admin,{kind:'intent',userId:fixture.uid,email:fixture.email,recipient:fixture.email,action:'recovery',redirect:'https://iars-tau.vercel.app/'});
 if(!message?.text.includes('type=recovery') || !message.html.includes('Reset password'))throw new Error('Fresh recovery link preparation failed.');
 console.log('PASS live Supabase recovery link generated at dispatch for the existing test fixture; no email sent.');
 const body={action:'recovery',email:'nonexistent-email-verification@example.invalid'};

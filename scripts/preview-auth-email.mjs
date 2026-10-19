@@ -4,7 +4,7 @@ import puppeteer from 'puppeteer-core';
 import { authEmailMessages } from '../supabase/functions/_shared/authEmail.ts';
 const directory = 'artifacts/auth-email';
 fs.mkdirSync(directory,{recursive:true});
-const [message] = authEmailMessages({user:{email:'preview@example.test'},email_data:{email_action_type:'signup',token_hash:'preview-'.repeat(10),redirect_to:'https://rmcssg.vercel.app/#/register'}},'https://iqnjyebkcetcmwammxff.supabase.co');
+const [message] = authEmailMessages({user:{email:'preview@example.test'},email_data:{email_action_type:'signup',token_hash:'preview-'.repeat(10),redirect_to:'https://iars-tau.vercel.app/#/register'}},'https://hmgadsnbdgrtojkoranv.supabase.co');
 // This preview contains a deliberately invalid token and cannot confirm a user.
 fs.writeFileSync(`${directory}/confirmation-preview.html`,message.html);
 const browser = await puppeteer.launch({executablePath:process.env.CHROME_PATH || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',headless:true});
@@ -14,7 +14,7 @@ try {
   await page.setContent(message.html,{waitUntil:'networkidle0'});
   const size = await page.evaluate(() => ({content:document.documentElement.scrollWidth,viewport:innerWidth}));
   assert.ok(size.content <= size.viewport + 1,`Email overflows at ${width}px`);
-  assert.equal(await page.evaluate(() => [...document.querySelectorAll('a')].some(link => link.textContent === 'Open IARS website' && link.href === 'https://rmcssg.vercel.app/')),true);
+  assert.equal(await page.evaluate(() => [...document.querySelectorAll('a')].some(link => link.textContent === 'Open IARS website' && link.href === 'https://iars-tau.vercel.app/')),true);
   await page.screenshot({path:`${directory}/confirmation-${width}.png`,fullPage:true}); await page.close();
  }
  console.log('Email preview verified at 320, 390, 768 and 1440 pixels.');

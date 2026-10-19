@@ -1,10 +1,25 @@
-import { afterEach, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, expect, it, vi } from 'vitest';
+vi.hoisted(() => vi.stubEnv('VITE_GOOGLE_DRIVE_GAS_URL', 'https://image-service.test/exec'));
 vi.mock('./supabase', () => ({ supabase: { auth: { getSession: vi.fn().mockResolvedValue({ data: { session: null } }) } } }));
 import { createDriveImage, getDriveImage, updateDriveImage, publicDriveImageUrl, deleteDriveImage, retainProfileImage, fileAsDataUrl } from './googleDrive';
 
 import { toast, toastStore } from './toast';
+afterAll(() => vi.unstubAllEnvs());
 
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); sessionStorage.clear(); toastStore.getSnapshot().forEach(item => toast.dismiss(item.id)); });
+it('keeps uploads disabled without contacting a previous image service when no endpoint is configured', async () => {
+  vi.stubEnv('VITE_GOOGLE_DRIVE_GAS_URL', '');
+  vi.resetModules();
+  const fetcher = vi.fn();
+  vi.stubGlobal('fetch', fetcher);
+  try {
+    const unconfigured = await import('./googleDrive');
+    await expect(unconfigured.getDriveImage('file-id')).rejects.toThrow('Photo uploads are temporarily unavailable');
+    expect(fetcher).not.toHaveBeenCalled();
+  } finally {
+    vi.stubEnv('VITE_GOOGLE_DRIVE_GAS_URL', 'https://image-service.test/exec');
+  }
+});
 it.each([
   ['failed-save', 'Clean up unsaved photo', 'Unsaved upload removed. Your previous photo was kept.'],
   ['replacement', 'Remove replaced photo', 'Old photo removed. Your new photo is saved.'],

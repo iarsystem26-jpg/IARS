@@ -1,4 +1,4 @@
-import { renderAuthEmail, type AuthEmailMessage } from './authEmail.ts';
+import { EMAIL_SITE, renderAuthEmail, type AuthEmailMessage } from './authEmail.ts';
 import type { EmailIntent } from './emailIntent.ts';
 
 // Build previews from copy, never from a live authentication link or OTP.
@@ -11,7 +11,7 @@ export function previewEmailIntent(intent: EmailIntent): AuthEmailMessage {
     email_change: ['Confirm your IARS email change', 'Confirm the requested change to your account email address.', 'Confirm email change'],
     reauthentication: ['Verify your IARS account', 'Enter this verification code in IARS to continue your account action.', ''],
   }[intent.action];
-  const placeholder = 'https://rmcssg.vercel.app/#email-preview-disabled';
+  const placeholder = `${EMAIL_SITE}/#email-preview-disabled`;
   const message = renderAuthEmail(intent.recipient, intent.subject || copy[0], intent.body || copy[1], copy[2], intent.action === 'reauthentication' ? undefined : placeholder, intent.action === 'reauthentication' ? '[code hidden]' : undefined);
   return {...message,html:message.html.replaceAll(placeholder,'#'),text:message.text.replaceAll(placeholder,'[authentication link hidden]')};
 }

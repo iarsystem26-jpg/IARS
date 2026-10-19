@@ -8,7 +8,7 @@ import { spawnSync } from 'node:child_process';
 process.loadEnvFile('.env.local'); process.loadEnvFile('.env.server.local');
 const vercel = path.join(process.env.APPDATA, 'npm/node_modules/vercel/dist/vc.js');
 const cli = path.resolve('node_modules/@supabase/cli-windows-x64/bin/supabase.exe');
-const ref = 'iqnjyebkcetcmwammxff';
+const ref = 'hmgadsnbdgrtojkoranv';
 const clientId = process.env.VITE_GOOGLE_CLIENT_ID;
 const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'rmc-google-verification-'));
 try {
@@ -18,21 +18,27 @@ try {
     if (result.status !== 0) throw new Error(`Unable to read Vercel ${target} settings.`);
     const env = parseEnv(fs.readFileSync(filename, 'utf8'));
     for (const name of ['VITE_SUPABASE_URL', 'VITE_SUPABASE_PUBLISHABLE_KEY', 'VITE_GOOGLE_CLIENT_ID', 'VITE_GOOGLE_DRIVE_GAS_URL']) {
-      if (env[name] !== process.env[name]) throw new Error(`Vercel ${target} ${name} does not match the local value.`);
+      if ((env[name] || '') !== (process.env[name] || '')) throw new Error(`Vercel ${target} ${name} does not match the local value.`);
     }
     console.log(`PASS Vercel ${target}: Supabase, Google client ID, image endpoint match`);
   }
+  if (clientId) {
   const secrets = spawnSync(cli, ['secrets', 'list', '--project-ref', ref], { encoding: 'utf8', timeout: 120000, windowsHide: true });
   if (secrets.status !== 0) throw new Error('Unable to verify Supabase Edge Function environment.');
   const entries = JSON.parse(secrets.stdout).secrets;
   const digest = crypto.createHash('sha256').update(clientId).digest('hex');
   if (entries.find(item => item.name === 'GOOGLE_CLIENT_ID')?.value !== digest) throw new Error('Supabase GOOGLE_CLIENT_ID does not match.');
   console.log('PASS Supabase Edge Function GOOGLE_CLIENT_ID matches');
-  const response = await fetch(`https://${ref}.supabase.co/auth/v1/authorize?provider=google&redirect_to=https%3A%2F%2Frmcssg.vercel.app`, { redirect: 'manual' });
+  const response = await fetch(`https://${ref}.supabase.co/auth/v1/authorize?provider=google&redirect_to=https%3A%2F%2Fiars-tau.vercel.app`, { redirect: 'manual' });
   if (response.status !== 302) throw new Error(`Google authorization endpoint returned ${response.status}.`);
   const authorization = new URL(response.headers.get('location'));
   if (authorization.hostname !== 'accounts.google.com' || authorization.searchParams.get('client_id') !== clientId || authorization.searchParams.get('redirect_uri') !== `https://${ref}.supabase.co/auth/v1/callback`) throw new Error('Google authorization redirect does not match the expected client/callback.');
   console.log('PASS Google authorization endpoint uses the correct client ID and callback');
+  } else {
+    const response = await fetch(`https://${ref}.supabase.co/auth/v1/authorize?provider=google`, { redirect: 'manual' });
+    if (response.status !== 400) throw new Error('Google provider must stay disabled until the new Google account is configured.');
+    console.log('PASS Google authorization remains disabled while account setup is on hold');
+  }
   const invalid = await fetch(`https://${ref}.supabase.co/functions/v1/rmc-enroll`, { method: 'POST', headers: { apikey: process.env.VITE_SUPABASE_PUBLISHABLE_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'google', credential: 'invalid-test-token', nonce: 'a'.repeat(64) }) });
   if (invalid.status !== 400) throw new Error(`Invalid Google proof returned unexpected status ${invalid.status}.`);
   console.log('PASS deployed enrollment function rejects invalid Google proof');

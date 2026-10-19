@@ -14,13 +14,13 @@ const login=await client.auth.signInWithPassword({email:fixture.email,password:f
 if(login.error)throw new Error('Admin fixture login failed.');
 const browser=await puppeteer.launch({executablePath:process.env.CHROME_PATH || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',headless:true});
 try {
- const preview=previewEmailIntent({kind:'intent',userId:fixture.uid,email:fixture.email,recipient:fixture.email,action:'recovery',redirect:'https://rmcssg.vercel.app/'});
+ const preview=previewEmailIntent({kind:'intent',userId:fixture.uid,email:fixture.email,recipient:fixture.email,action:'recovery',redirect:'https://iars-tau.vercel.app/'});
  const inserted=await operator.from('rmc_email_history').insert({id:fixtureId,recipient:fixture.email,subject:'Temporary dashboard preview verification',kind:'recovery',status:'sent',created_at:new Date().toISOString(),sent_at:new Date().toISOString(),attempts:1,preview_html:preview.html,preview_text:preview.text});
  if(inserted.error)throw new Error('Unable to create temporary dashboard fixture.');
  const page=await browser.newPage();
  const key=`sb-${new URL(process.env.VITE_SUPABASE_URL).hostname.split('.')[0]}-auth-token`;
  await page.evaluateOnNewDocument((key,session)=>localStorage.setItem(key,JSON.stringify(session)),key,login.data.session);
- await page.goto('https://rmcssg.vercel.app/#/admin/controls?tab=email',{waitUntil:'networkidle0'});
+ await page.goto('https://iars-tau.vercel.app/#/admin/controls?tab=email',{waitUntil:'networkidle0'});
  await page.waitForFunction(()=>document.body.textContent.includes('Verify identity to configure enrollment'));
  assert.ok(!await page.evaluate(()=>document.body.textContent.includes('Email activity')));
  await page.evaluate(()=>[...document.querySelectorAll('button')].find(button=>button.textContent.includes('Verify identity to configure enrollment')).click());

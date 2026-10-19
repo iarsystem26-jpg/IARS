@@ -1,4 +1,4 @@
-param([switch]$Activate)
+param([switch]$Activate, [switch]$SendTestEmail)
 $ErrorActionPreference = 'Stop'
 # Use the CLI credential in memory; never print or write the management token.
 $taskToken = $env:SUPABASE_ACCESS_TOKEN
@@ -36,5 +36,5 @@ public static class RmcPasskeyCredential {
 }
 if (-not $taskToken) { throw 'Supabase management credential is unavailable.' }
 Set-Location -LiteralPath (Join-Path $PSScriptRoot '..')
-@{ managementToken = $taskToken; activate = [bool]$Activate } | ConvertTo-Json -Compress | node scripts/configure-gas-email.mjs
+@{ managementToken = $taskToken; activate = [bool]$Activate; sendTestEmail = [bool]$SendTestEmail } | ConvertTo-Json -Compress | node scripts/configure-gas-email.mjs
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

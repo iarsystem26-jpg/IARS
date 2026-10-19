@@ -1,13 +1,15 @@
 import { expect, it } from 'vitest';
-import { authEmailMessages, renderAuthEmail } from '../supabase/functions/_shared/authEmail';
+import { EMAIL_SITE, authEmailMessages, renderAuthEmail } from '../supabase/functions/_shared/authEmail';
 import { encryptEmail, decryptEmail } from '../supabase/functions/_shared/emailQueue';
-const email = { email_action_type: 'signup', token_hash: 'a'.repeat(64), redirect_to: 'https://rmcssg.vercel.app/#/register' };
+const email = { email_action_type: 'signup', token_hash: 'a'.repeat(64), redirect_to: `${EMAIL_SITE}/#/register` };
 const event = { user: { email: 'student@example.test', new_email: 'new@example.test' }, email_data: email };
 it('renders a responsive layout with seal, legal links, website button and plain-text fallback', () => {
  const result = authEmailMessages(event,'https://project.supabase.co')[0];
  expect(result.html).toContain('max-width:600px'); expect(result.html).toContain('academic-seal-transparent.png');
  for (const path of ['privacy-policy','data-privacy-agreement','terms-of-service','data-deletion']) expect(result.html).toContain(`/#/${path}`);
  expect(result.html).toContain('Open IARS website'); expect(result.text).toContain('Confirm email address: https://project.supabase.co/auth/v1/verify');
+ expect(result.html).toContain(`${EMAIL_SITE}/#/privacy-policy`);
+ expect(result.text).toContain(`redirect_to=${encodeURIComponent(`${EMAIL_SITE}/#/register`)}`);
 });
 it('escapes custom subjects and bodies instead of injecting HTML', () => {
  const result = authEmailMessages(event,'https://project.supabase.co',{ email_subject: '<img src=x>',email_body: '<script>alert(1)</script>\nDetails' })[0];
@@ -23,7 +25,7 @@ it('uses the documented hash mapping for secure email changes', () => {
  expect(messages[1].to).toBe('new@example.test'); expect(messages[1].text).toContain('token=' + 'b'.repeat(64));
 });
 it('binds links to the app rather than an untrusted redirect origin', () => {
- const message = authEmailMessages({ ...event,email_data: { ...email,redirect_to: 'https://rmcssg.vercel.app.evil.test' } },'https://project.supabase.co')[0];
+ const message = authEmailMessages({ ...event,email_data: { ...email,redirect_to: `${EMAIL_SITE}.evil.test` } },'https://project.supabase.co')[0];
  expect(message.text).not.toContain('evil.test');
 });
 it('rejects injected recipient lists and non-HTTPS links', () => {

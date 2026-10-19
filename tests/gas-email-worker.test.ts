@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import { beforeEach, expect, it, vi } from 'vitest';
 let context:any,send:any,fetch:any,properties:Map<string,string>,triggers:any[],drafts:Map<string,any>,sent:Map<string,any>,create:any;
-const message={to:'student@example.test',subject:'Confirm email',text:'Plain text',html:'<img src="https://rmcssg.vercel.app/academic-seal-transparent.png">'};
+const message={to:'student@example.test',subject:'Confirm email',text:'Plain text',html:'<img src="https://iars-tau.vercel.app/academic-seal-transparent.png">'};
 beforeEach(()=>{
  properties=new Map();triggers=[];drafts=new Map();sent=new Map();send=vi.fn();
  create=vi.fn((to:string,subject:string,text:string,options:any)=>{

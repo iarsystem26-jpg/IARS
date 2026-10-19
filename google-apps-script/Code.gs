@@ -2,7 +2,7 @@
  * RMC Attendance profile image API.
  * Deploy as a web app: execute as the owner, who has access: anyone.
  */
-const DRIVE_FOLDER_ID = '1ow0X_gdQB7AwJI5pAFJeP1YTftbc845Q';
+const DRIVE_FOLDER_ID = '1ZMkmdQ2TRLJQuMhPO0e66SQms1q3UETw';
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
@@ -173,10 +173,10 @@ function deliverAuthEmails() {
         const message = prepared.message;
         const options = { name: 'Institution Attendance and Records System', htmlBody: message.html + '<p style="color:#64748b;font-size:10px;">Delivery reference: ' + markerFor(item.id) + '</p>' };
         if (!logo) {
-          const image = UrlFetchApp.fetch('https://rmcssg.vercel.app/academic-seal-transparent.png', { muteHttpExceptions: true });
+          const image = UrlFetchApp.fetch('https://iars-tau.vercel.app/academic-seal-transparent.png', { muteHttpExceptions: true });
           if (image.getResponseCode() === 200) logo = image.getBlob().setName('iars-seal.png');
         }
-        if (logo) { options.inlineImages = { iarsSeal: logo }; options.htmlBody = options.htmlBody.split('https://rmcssg.vercel.app/academic-seal-transparent.png').join('cid:iarsSeal'); }
+        if (logo) { options.inlineImages = { iarsSeal: logo }; options.htmlBody = options.htmlBody.split('https://iars-tau.vercel.app/academic-seal-transparent.png').join('cid:iarsSeal'); }
         const plain = message.text + '\n\nDelivery reference: ' + markerFor(item.id);
         if (!draft) { entry.state = 'creating'; remember(item.id, entry); draft = GmailApp.createDraft(message.to, message.subject, plain, options); }
         else draft.update(message.to, message.subject, plain, options);

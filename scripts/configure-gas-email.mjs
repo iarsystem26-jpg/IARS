@@ -8,11 +8,13 @@ import { encryptEmail } from '../supabase/functions/_shared/emailQueue.ts';
 // The PowerShell wrapper supplies the management token over stdin. Never log it.
 let input = '';
 for await (const chunk of process.stdin) input += chunk;
-const { managementToken, activate } = JSON.parse(input.replace(/^\uFEFF/,''));
+const { managementToken, activate, sendTestEmail = false } = JSON.parse(input.replace(/^\uFEFF/,''));
 process.loadEnvFile('.env.local');
+if (fs.existsSync('.env.server.local')) process.loadEnvFile('.env.server.local');
 const projectUrl = process.env.VITE_SUPABASE_URL;
 const ref = new URL(projectUrl).hostname.split('.')[0];
-const scriptId = '152HJ0s8JgoCkTv4nZ8uQETY0KpGluKcyMfDxlZWTuJjaX-JNDLeC-5V7';
+if (ref !== 'hmgadsnbdgrtojkoranv') throw new Error('Link the IARS production Supabase project before configuring email.');
+const scriptId = '1Vw63wc_VqbsPZ0BGiC2kc3TEl9Dcpb8yI1SPsv0VUoVj7tPhlO03mi84';
 const gasUrl = process.env.VITE_GOOGLE_DRIVE_GAS_URL;
 let emailGasUrl;
 const owner = 'ssgrmctagum.2@gmail.com';
@@ -42,6 +44,8 @@ const config = existing ? JSON.parse(existing[1]) : {
  secret:crypto.randomBytes(32).toString('hex'),workerUrl:`${projectUrl}/functions/v1/rmc-email-worker`,
  encryptionKey:crypto.randomBytes(32).toString('base64'),hookSecret:`v1,whsec_${crypto.randomBytes(32).toString('base64')}`,
 };
+config.encryptionKey ||= process.env.AUTH_EMAIL_ENCRYPTION_KEY;
+config.hookSecret ||= process.env.SEND_EMAIL_HOOK_SECRET;
 if (!config.secret || !config.encryptionKey || !config.hookSecret || config.workerUrl !== `${projectUrl}/functions/v1/rmc-email-worker`) throw new Error('Unexpected existing private email configuration.');
 if (!activate) {
  await management('/secrets','POST',[
@@ -85,8 +89,9 @@ if (!health?.success || !health.gmailAuthorized || !health.installed) {
  process.exitCode = 2;
 } else {
  console.log('Verified Gmail authorization and the every-minute delivery trigger.');
- // Send one real smoke test to the authenticated owner before replacing SMTP.
- const message = renderAuthEmail(owner,'IARS email delivery is ready','This test confirms that the IARS email worker is sending through GmailApp.','Open IARS website','https://rmcssg.vercel.app/');
+ if (sendTestEmail) {
+ // Send a real smoke test only when explicitly requested by the operator.
+ const message = renderAuthEmail(owner,'IARS email delivery is ready','This test confirms that the IARS email worker is sending through GmailApp.','Open IARS website','https://iars-tau.vercel.app/');
  const event = `setup-test:${crypto.randomUUID()}`;
  const payload = await encryptEmail(message,config.encryptionKey);
  await management('/database/query','POST',{query:`insert into public.rmc_auth_email_queue(event_key,payload) values ('${event}','${payload}');`});
@@ -97,6 +102,7 @@ if (!health?.success || !health.gmailAuthorized || !health.installed) {
  const status = await management('/database/query','POST',{query:`select status from public.rmc_auth_email_queue where event_key='${event}';`});
  if (status[0]?.status !== 'sent') throw new Error('Gmail test email was not acknowledged. The Auth hook remains unchanged.');
  console.log('Verified a real GmailApp email to the owner account.');
+ }
  await management('/config/auth','PATCH',{hook_send_email_enabled:true,hook_send_email_uri:`${projectUrl}/functions/v1/rmc-send-email`,hook_send_email_secrets:config.hookSecret,rate_limit_email_sent:30});
  const verified = await management('/config/auth');
  if (!verified.hook_send_email_enabled || verified.hook_send_email_uri !== `${projectUrl}/functions/v1/rmc-send-email`) throw new Error('Auth hook verification failed.');

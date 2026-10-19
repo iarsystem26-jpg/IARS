@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import { createClient } from '@supabase/supabase-js';
 process.loadEnvFile('.env.local'); process.loadEnvFile('.env.server.local');
-const base = 'https://rmcssg.vercel.app';
+const base = 'https://iars-tau.vercel.app';
 const backend = process.env.SUPABASE_URL;
 const key = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 const report = { date: new Date().toISOString(), target: { students: 5000, scanners: 100 }, scope: 'Bounded read baseline on current demo data; not a full target-capacity test.', results: [] };
