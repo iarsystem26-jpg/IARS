@@ -1,5 +1,17 @@
 # Profile image API
 
+## Connected clasp project
+
+The root `.clasp.json` links `google-apps-script/` to the IARS Production Services project owned by `iarsystem26@gmail.com`.
+
+```powershell
+clasp --user iarsystem26 show-authorized-user
+clasp --user iarsystem26 status
+clasp --user iarsystem26 push
+```
+
+The source is uploaded, but Google sign-in, the public image service, and Gmail delivery remain on hold. Pushing source does not authorize Gmail/Drive access, install triggers, or activate a web app deployment. Configure the new account's services before setting the frontend Google variables or activating the email hook.
+
 ## Automatic Supabase keep-alive
 
 The script includes a database ping every **6 hours** (about four requests per day). It runs on Google's servers even when the website is closed or idle, using the existing public `rmc_nodes` directory and publishable key. It does not read profiles or modify records.

@@ -10,8 +10,9 @@ process.loadEnvFile('.env.local');
 if (fs.existsSync('.env.server.local')) process.loadEnvFile('.env.server.local');
 const project = JSON.parse(fs.readFileSync('.vercel/project.json', 'utf8'));
 if (project.projectName !== 'iars') throw new Error('Expected the iars Vercel project. Link the correct project first.');
+if (project.orgId !== 'team_fz39LBmnTE5qlMVTyvNinuEG') throw new Error('Expected the iars1 Vercel team. Link the correct team first.');
 const supabaseRef = fs.readFileSync('supabase/.temp/project-ref', 'utf8').trim();
-if (supabaseRef !== 'hmgadsnbdgrtojkoranv') throw new Error('Expected the IARS Supabase project.');
+if (supabaseRef !== 'wpivcedgktsrdsvhsuuu') throw new Error('Expected the IARS Supabase project.');
 validatePublicEnvironment(process.env);
 if (new URL(process.env.VITE_SUPABASE_URL).hostname !== `${supabaseRef}.supabase.co`) throw new Error('The frontend Supabase URL does not match the linked project.');
 
@@ -22,7 +23,7 @@ const names = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_PUBLISHABLE_KEY', 'VITE_PASSK
 for (const name of names) {
   const value = process.env[name]?.trim();
   if (!value) { console.log(`SKIP ${name}: no local value`); continue; }
-  const result = spawnSync(process.execPath, [vercelCli, 'env', 'add', name, 'production,preview,development', '--force', '--yes', '--no-sensitive', '--scope', 'zekes-projects-eaf1f699'], {
+  const result = spawnSync(process.execPath, [vercelCli, 'env', 'add', name, 'production,preview,development', '--force', '--yes', '--no-sensitive', '--scope', 'iars1'], {
     input: value, encoding: 'utf8', timeout: 120000, windowsHide: true,
   });
   if (result.status !== 0) {

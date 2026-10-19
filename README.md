@@ -1,6 +1,6 @@
 # RMC Attendance
 
-React/Vite application connected to Supabase project `hmgadsnbdgrtojkoranv`.
+React/Vite application connected to Supabase project `wpivcedgktsrdsvhsuuu`.
 
 ```sh
 npm ci
@@ -74,7 +74,7 @@ Future changes should use new migrations, not edits to applied migrations:
 
 ```sh
 npx supabase login
-npx supabase link --project-ref hmgadsnbdgrtojkoranv
+npx supabase link --project-ref wpivcedgktsrdsvhsuuu
 npx supabase migration new describe_change
 npx supabase db push
 npx supabase functions deploy rmc-login
@@ -99,7 +99,7 @@ powershell -NoProfile -File scripts/configure-supabase-passkeys.ps1
 npm run configure:passkeys
 ```
 
-The current hosted RP ID is `iars-tau.vercel.app`, with origin `https://iars-tau.vercel.app`. Passkeys bound to that domain cannot be used on localhost. The app explains this and leaves password/Google login available. Keep the RP ID stable; changing it invalidates existing credentials. Set `VITE_PASSKEY_RP_ID` to the same value in deployment environment settings before rebuilding. To configure a different initial domain, the PowerShell script accepts `-RpId` and `-Origins`; it refuses to change an RP ID already enabled on the project. Local Supabase testing requires its own localhost RP configuration and separate local backend.
+The current hosted RP ID is `iars-blond.vercel.app`, with origin `https://iars-blond.vercel.app`. Passkeys bound to that domain cannot be used on localhost. The app explains this and leaves password/Google login available. Keep the RP ID stable; changing it invalidates existing credentials. Set `VITE_PASSKEY_RP_ID` to the same value in deployment environment settings before rebuilding. To configure a different initial domain, the PowerShell script accepts `-RpId` and `-Origins`; it refuses to change an RP ID already enabled on the project. Local Supabase testing requires its own localhost RP configuration and separate local backend.
 
 Verification:
 
@@ -114,7 +114,7 @@ The browser check needs Chrome, `.demo-accounts.local`, and the server key in ig
 
 ## Google login and enrollment setup
 
-The fresh production deployment uses Vercel project `iars` at `https://iars-tau.vercel.app` and Supabase project `hmgadsnbdgrtojkoranv`. Database migrations, Edge Functions, backend environment, MFA, passkeys, and security headers are configured. Google sign-in, Google Drive uploads, and Gmail delivery are on hold while the school moves to a new Google account. Google client and image service environment variables are unset, the Google provider is disabled, and the custom email hook is inactive. Enrollment confirmation and in-app password recovery require the mail setup to be completed. There is no fallback to the old image service. No old school records or users were imported.
+The fresh production deployment uses Vercel project `iars` at `https://iars-blond.vercel.app` and Supabase project `wpivcedgktsrdsvhsuuu`. Database migrations, Edge Functions, backend environment, MFA, passkeys, and security headers are configured. Google sign-in, Google Drive uploads, and Gmail delivery are on hold while the school moves to a new Google account. Google client and image service environment variables are unset, the Google provider is disabled, and the custom email hook is inactive. Enrollment confirmation and in-app password recovery require the mail setup to be completed. There is no fallback to the old image service. No old school records or users were imported.
 
 On this Windows workspace, `node scripts/configure-cloud-environment.mjs` synchronizes allowlisted public frontend variables and the Edge Function's Google client ID. `node scripts/configure-google-provider.mjs` previews provider/URL differences and verifies hosted settings; add `--apply` to save the declared configuration and the Google secret. These scripts read `.env.local` and `.env.server.local`, keep credentials out of command arguments, and suppress secret values. `node scripts/verify-cloud-google.mjs` verifies matching cloud values, authorization callback, deployed invalid-token rejection, and absence of the Google client secret from the frontend build. Supply `GOOGLE_CLIENT_SECRET` only in the ignored server environment file.
 
@@ -122,7 +122,7 @@ Google selection verifies an email without creating an Auth user, profile, or ap
 
 Creation is limited to one attempt per email every 60 seconds and five attempts per IP every ten minutes, including failed Auth creation attempts. Existing Google accounts can sign in during this cooldown. Database tickets prevent direct Auth signup/OAuth from bypassing final enrollment. Existing email/name/username/student-ID unique indexes remain the final duplicate guard. Staff provisioning retains its separate authenticated reservation flow.
 
-1. Create a **Web application** OAuth client in Google Cloud's Google Auth Platform. Configure branding/audience and add your deployed origin plus `http://127.0.0.1:3000` (or the exact development origin you use) under **Authorized JavaScript origins**. Add test users if the audience is still in Testing. Add `https://hmgadsnbdgrtojkoranv.supabase.co/auth/v1/callback` under **Authorized redirect URIs**.
+1. Create a **Web application** OAuth client in Google Cloud's Google Auth Platform. Configure branding/audience and add your deployed origin plus `http://127.0.0.1:3000` (or the exact development origin you use) under **Authorized JavaScript origins**. Add test users if the audience is still in Testing. Add `https://wpivcedgktsrdsvhsuuu.supabase.co/auth/v1/callback` under **Authorized redirect URIs**.
 2. In Supabase **Authentication → Sign In / Providers → Google**, enable Google and save that client ID and client secret. Keep nonce verification enabled. Set the production Site URL/redirect allowlist for signup confirmation and password recovery. Follow the [Supabase Google setup guide](https://supabase.com/docs/guides/auth/social-login/auth-google).
 3. Set `VITE_GOOGLE_CLIENT_ID=YOUR_WEB_CLIENT_ID.apps.googleusercontent.com` in `.env.local` and your frontend hosting environment. Set the same ID as the Edge Function secret `GOOGLE_CLIENT_ID` in Supabase. The Google client secret belongs only in Supabase's provider settings.
 4. Deploy `rmc-enroll`, apply `supabase/migrations/20261008111610_google_enrollment_guard.sql`, and deploy this frontend in the same release. The database guard requires the updated frontend for regular enrollment too. The linked project's history has older gaps and a newer applied migration, so use the targeted query below rather than a general `db push --include-all`. Run the repair command only after the query succeeds; it records this migration without changing other history entries. If migration list already shows this version applied remotely, skip the query/repair pair.

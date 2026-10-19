@@ -8,13 +8,13 @@ import { spawnSync } from 'node:child_process';
 process.loadEnvFile('.env.local'); process.loadEnvFile('.env.server.local');
 const vercel = path.join(process.env.APPDATA, 'npm/node_modules/vercel/dist/vc.js');
 const cli = path.resolve('node_modules/@supabase/cli-windows-x64/bin/supabase.exe');
-const ref = 'hmgadsnbdgrtojkoranv';
+const ref = 'wpivcedgktsrdsvhsuuu';
 const clientId = process.env.VITE_GOOGLE_CLIENT_ID;
 const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'rmc-google-verification-'));
 try {
   for (const target of ['production', 'preview', 'development']) {
     const filename = path.join(folder, `${target}.env`);
-    const result = spawnSync(process.execPath, [vercel, 'env', 'pull', filename, '--environment', target, '--yes', '--scope', 'zekes-projects-eaf1f699'], { encoding: 'utf8', timeout: 120000, windowsHide: true });
+    const result = spawnSync(process.execPath, [vercel, 'env', 'pull', filename, '--environment', target, '--yes', '--scope', 'iars1'], { encoding: 'utf8', timeout: 120000, windowsHide: true });
     if (result.status !== 0) throw new Error(`Unable to read Vercel ${target} settings.`);
     const env = parseEnv(fs.readFileSync(filename, 'utf8'));
     for (const name of ['VITE_SUPABASE_URL', 'VITE_SUPABASE_PUBLISHABLE_KEY', 'VITE_GOOGLE_CLIENT_ID', 'VITE_GOOGLE_DRIVE_GAS_URL']) {
@@ -29,7 +29,7 @@ try {
   const digest = crypto.createHash('sha256').update(clientId).digest('hex');
   if (entries.find(item => item.name === 'GOOGLE_CLIENT_ID')?.value !== digest) throw new Error('Supabase GOOGLE_CLIENT_ID does not match.');
   console.log('PASS Supabase Edge Function GOOGLE_CLIENT_ID matches');
-  const response = await fetch(`https://${ref}.supabase.co/auth/v1/authorize?provider=google&redirect_to=https%3A%2F%2Fiars-tau.vercel.app`, { redirect: 'manual' });
+  const response = await fetch(`https://${ref}.supabase.co/auth/v1/authorize?provider=google&redirect_to=https%3A%2F%2Fiars-blond.vercel.app`, { redirect: 'manual' });
   if (response.status !== 302) throw new Error(`Google authorization endpoint returned ${response.status}.`);
   const authorization = new URL(response.headers.get('location'));
   if (authorization.hostname !== 'accounts.google.com' || authorization.searchParams.get('client_id') !== clientId || authorization.searchParams.get('redirect_uri') !== `https://${ref}.supabase.co/auth/v1/callback`) throw new Error('Google authorization redirect does not match the expected client/callback.');
@@ -44,8 +44,13 @@ try {
   console.log('PASS deployed enrollment function rejects invalid Google proof');
   const walk = folder => fs.readdirSync(folder, { withFileTypes: true }).flatMap(entry => entry.isDirectory() ? walk(path.join(folder, entry.name)) : [path.join(folder, entry.name)]);
   if (fs.existsSync('dist')) {
-    for (const file of walk('dist').filter(file => /\.(js|html|json)$/.test(file))) if (fs.readFileSync(file, 'utf8').includes(process.env.GOOGLE_CLIENT_SECRET)) throw new Error('Google client secret found in the frontend build.');
-    console.log('PASS Google client secret is absent from the frontend build');
+    const privateValues = ['GOOGLE_CLIENT_SECRET', 'SUPABASE_SERVICE_ROLE_KEY', 'AUTH_EMAIL_ENCRYPTION_KEY', 'AUTH_EMAIL_WORKER_SECRET', 'SEND_EMAIL_HOOK_SECRET']
+      .map(name => process.env[name]).filter(value => typeof value === 'string' && value.length > 12);
+    for (const file of walk('dist').filter(file => /\.(js|html|json)$/.test(file))) {
+      const content = fs.readFileSync(file, 'utf8');
+      if (privateValues.some(value => content.includes(value))) throw new Error('Server credential found in the frontend build.');
+    }
+    console.log('PASS configured server credentials are absent from the frontend build');
   }
 } finally {
   const resolved = path.resolve(folder);

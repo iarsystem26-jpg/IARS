@@ -11,10 +11,10 @@ const cli = path.resolve('node_modules/@supabase/cli-windows-x64/bin/supabase.ex
 const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'rmc-google-provider-'));
 const directory = path.join(folder, 'supabase'); fs.mkdirSync(directory);
 const configFile = path.join(directory, 'config.toml');
-const config = `project_id = "hmgadsnbdgrtojkoranv"
+const config = `project_id = "wpivcedgktsrdsvhsuuu"
 [auth]
-site_url = "https://iars-tau.vercel.app"
-additional_redirect_urls = ["https://iars-tau.vercel.app", "https://iars-tau.vercel.app/", "http://localhost:3000", "http://localhost:3000/**", "http://127.0.0.1:3000", "http://127.0.0.1:3000/**"]
+site_url = "https://iars-blond.vercel.app"
+additional_redirect_urls = ["https://iars-blond.vercel.app", "https://iars-blond.vercel.app/", "http://localhost:3000", "http://localhost:3000/**", "http://127.0.0.1:3000", "http://127.0.0.1:3000/**"]
 [auth.external.google]
 enabled = true
 client_id = "${clientId}"
@@ -24,7 +24,7 @@ skip_nonce_check = false
 fs.writeFileSync(configFile, config, { mode: 0o600 });
 const scrub = value => String(value || '').split(clientSecret).join('[redacted Google secret]').replace(/GOCSPX-[A-Za-z0-9_-]+/g, '[redacted Google secret]');
 try {
-  const command = ['config', process.argv.includes('--apply') ? 'push' : 'diff', '--workdir', folder, '--project-ref', 'hmgadsnbdgrtojkoranv'];
+  const command = ['config', process.argv.includes('--apply') ? 'push' : 'diff', '--workdir', folder, '--project-ref', 'wpivcedgktsrdsvhsuuu'];
   if (process.argv.includes('--apply')) command.push('--yes');
   const result = spawnSync(cli, command, { env: process.env, encoding: 'utf8', timeout: 120000, windowsHide: true });
   console.log(scrub(result.stdout)); console.log(scrub(result.stderr));

@@ -5,13 +5,13 @@ try {
  const page = await browser.newPage();
  const configuration = page.waitForResponse(response => response.url().includes('/rest/v1/rmc_enrollment_confirmation?'));
  const bundle = page.waitForResponse(response => /\/assets\/LandingPage-[^/]+\.js/.test(response.url()));
- await page.goto('https://iars-tau.vercel.app/#/register',{waitUntil:'networkidle0'});
+ await page.goto('https://iars-blond.vercel.app/#/register',{waitUntil:'networkidle0'});
  await page.waitForSelector('#enrollment-title');
  assert.equal((await configuration).status(),200);
  assert.ok((await (await bundle).text()).includes('A fresh verification link is created just before sending'));
  assert.ok(await page.evaluate(() => document.querySelector('#enrollment-title')?.textContent.includes('Create your student account')));
  console.log('PASS published enrollment page loads its confirmation policy and the Gmail delivery instructions.');
- await page.goto('https://iars-tau.vercel.app/#/login',{waitUntil:'networkidle0'});
+ await page.goto('https://iars-blond.vercel.app/#/login',{waitUntil:'networkidle0'});
  await page.waitForSelector('#landing-login-identifier');
  await page.type('#landing-login-identifier','nonexistent-email-verification@example.invalid');
  await page.evaluate(()=>[...document.querySelectorAll('button')].find(button=>button.textContent==='Forgot password?')?.click());

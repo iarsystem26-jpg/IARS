@@ -13,12 +13,13 @@ process.loadEnvFile('.env.local');
 if (fs.existsSync('.env.server.local')) process.loadEnvFile('.env.server.local');
 const projectUrl = process.env.VITE_SUPABASE_URL;
 const ref = new URL(projectUrl).hostname.split('.')[0];
-if (ref !== 'hmgadsnbdgrtojkoranv') throw new Error('Link the IARS production Supabase project before configuring email.');
-const scriptId = '1Vw63wc_VqbsPZ0BGiC2kc3TEl9Dcpb8yI1SPsv0VUoVj7tPhlO03mi84';
+if (ref !== 'wpivcedgktsrdsvhsuuu') throw new Error('Link the IARS production Supabase project before configuring email.');
+const scriptId = JSON.parse(fs.readFileSync('.clasp.json', 'utf8')).scriptId;
+if (!scriptId) throw new Error('Connect the IARS Apps Script project with clasp first.');
 const gasUrl = process.env.VITE_GOOGLE_DRIVE_GAS_URL;
 let emailGasUrl;
-const owner = 'ssgrmctagum.2@gmail.com';
-const credentials = JSON.parse(fs.readFileSync(`${process.env.USERPROFILE}/.clasprc.json`,'utf8')).tokens.ssgrmc;
+const owner = 'iarsystem26@gmail.com';
+const credentials = JSON.parse(fs.readFileSync(`${process.env.USERPROFILE}/.clasprc.json`,'utf8')).tokens.iarsystem26;
 if (!credentials || !managementToken || !gasUrl) throw new Error('Google and Supabase operator credentials are required.');
 async function jsonApi(url,token,method = 'GET',body) {
  const response = await fetch(url,{ method, headers: { Authorization: `Bearer ${token}`,'Content-Type':'application/json' }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
@@ -39,8 +40,10 @@ if (identity.email !== owner) throw new Error('Sign in with the GAS owner accoun
 const content = await google('/content');
 const previousConfig = content.files.find(file => file.name === 'MailConfiguration')?.source;
 const existing = previousConfig?.match(/return (\{.*\});/);
-if (activate && !existing) throw new Error('Run the email provisioning script before activation.');
-const config = existing ? JSON.parse(existing[1]) : {
+let existingConfig;
+try { if (existing) existingConfig = JSON.parse(existing[1]); } catch { /* The repo template reads Script Properties instead of embedding JSON. */ }
+if (activate && !existingConfig) throw new Error('Run the email provisioning script before activation.');
+const config = existingConfig || {
  secret:crypto.randomBytes(32).toString('hex'),workerUrl:`${projectUrl}/functions/v1/rmc-email-worker`,
  encryptionKey:crypto.randomBytes(32).toString('base64'),hookSecret:`v1,whsec_${crypto.randomBytes(32).toString('base64')}`,
 };
@@ -91,7 +94,7 @@ if (!health?.success || !health.gmailAuthorized || !health.installed) {
  console.log('Verified Gmail authorization and the every-minute delivery trigger.');
  if (sendTestEmail) {
  // Send a real smoke test only when explicitly requested by the operator.
- const message = renderAuthEmail(owner,'IARS email delivery is ready','This test confirms that the IARS email worker is sending through GmailApp.','Open IARS website','https://iars-tau.vercel.app/');
+ const message = renderAuthEmail(owner,'IARS email delivery is ready','This test confirms that the IARS email worker is sending through GmailApp.','Open IARS website','https://iars-blond.vercel.app/');
  const event = `setup-test:${crypto.randomUUID()}`;
  const payload = await encryptEmail(message,config.encryptionKey);
  await management('/database/query','POST',{query:`insert into public.rmc_auth_email_queue(event_key,payload) values ('${event}','${payload}');`});
