@@ -55,26 +55,30 @@ export async function runWorker({ managementToken, checkOnly = false, once = fal
   if (!organizations.some(org => org.id === organization || org.slug === organization)) throw new Error('The selected Supabase organization is not available to this operator.');
   if (organization !== hubProject.organization_id && organization !== hubProject.organization_slug) throw new Error('The selected organization does not own the configured hub.');
   const query = (ref, sql) => management(`/projects/${ref}/database/query`, 'POST', { query: sql });
-  if (install) {
-    const file = 'supabase/migrations/20261020044438_institution_branding_registry.sql';
-    const existing = await query(hubRef, "select to_regclass('public.rmc_institutions') is not null as installed");
-    if (!existing[0]?.installed) await query(hubRef, `begin; ${fs.readFileSync(file, 'utf8')} insert into supabase_migrations.schema_migrations(version,name,statements) values('20261020044438','institution_branding_registry',array[${sqlLiteral(fs.readFileSync(file, 'utf8'))}]) on conflict(version) do nothing; commit;`);
-    const credentialsVersion = '20261020100000';
-    const installed = await query(hubRef, `select version from supabase_migrations.schema_migrations where version=${sqlLiteral(credentialsVersion)}`);
-    if (!installed.length) {
-      const credentialsSql = fs.readFileSync('supabase/migrations/20261020100000_institution_administrator_credentials.sql', 'utf8');
-      await query(hubRef, `begin; ${credentialsSql} insert into supabase_migrations.schema_migrations(version,name,statements) values(${sqlLiteral(credentialsVersion)},'institution_administrator_credentials',array[${sqlLiteral(credentialsSql)}]); commit;`);
-    }
-    await query(hubRef, "notify pgrst, 'reload schema'");
-    console.log('Institution registry installed on the verified hub.');
+  const file = 'supabase/migrations/20261020044438_institution_branding_registry.sql';
+  const existing = await query(hubRef, "select to_regclass('public.rmc_institutions') is not null as installed");
+  if (!existing[0]?.installed) {
+    const registrySql = fs.readFileSync(file, 'utf8');
+    await query(hubRef, `begin; ${registrySql} insert into supabase_migrations.schema_migrations(version,name,statements) values('20261020044438','institution_branding_registry',array[${sqlLiteral(registrySql)}]) on conflict(version) do nothing; commit;`);
   }
+  const credentialsVersion = '20261020100000';
+  const credentialsMarker = await query(hubRef, `select version from supabase_migrations.schema_migrations where version=${sqlLiteral(credentialsVersion)}`);
+  const credentialsRpc = await query(hubRef, "select to_regprocedure('public.rmc_create_institution(jsonb,text)') is not null as installed");
+  if (!credentialsMarker.length && !credentialsRpc[0]?.installed) {
+    const credentialsSql = fs.readFileSync('supabase/migrations/20261020100000_institution_administrator_credentials.sql', 'utf8');
+    await query(hubRef, `begin; ${credentialsSql} insert into supabase_migrations.schema_migrations(version,name,statements) values(${sqlLiteral(credentialsVersion)},'institution_administrator_credentials',array[${sqlLiteral(credentialsSql)}]); commit;`);
+  } else if (!credentialsRpc[0]?.installed) {
+    throw new Error('The institution administrator migration is marked applied but rmc_create_institution is missing. Repair the hub migration before processing institution requests.');
+  }
+  await query(hubRef, "notify pgrst, 'reload schema'");
+  if (install || !existing[0]?.installed || !credentialsMarker.length) console.log('Institution registry verified on the verified hub.');
   checked(await hub.from('rmc_institutions').select('id').limit(1));
   console.log(`Institution worker verified: organization ${organization}, hub ${hubRef}.`);
   if (checkOnly) return;
+  if (!env.AUTH_EMAIL_ENCRYPTION_KEY) throw new Error('Configure the hub AUTH_EMAIL_ENCRYPTION_KEY and Gmail delivery worker before creating an institution.');
 
   async function provision(job, leaseToken) {
     validateInstitutionSetup(job.config);
-    if (!job.project_ref && !env.AUTH_EMAIL_ENCRYPTION_KEY) throw new Error('Configure the hub AUTH_EMAIL_ENCRYPTION_KEY and Gmail delivery worker before creating an institution.');
     if (job.config.slug !== job.slug) throw new Error('Institution ID does not match its setup request.');
     const name = `iars-${hubRef.slice(0, 6)}-${job.id}`;
     const app = new URL(appUrl); app.searchParams.set('institution', job.slug);

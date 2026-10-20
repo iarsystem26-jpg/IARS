@@ -3,6 +3,7 @@ import crypto from 'node:crypto';
 import vm from 'node:vm';
 import { spawnSync } from 'node:child_process';
 import { encryptEmail } from '../supabase/functions/_shared/emailQueue.ts';
+import { resolveEmailEncryptionKey, saveEmailEncryptionKey } from './email-configuration.mjs';
 
 // The PowerShell wrapper supplies the management token over stdin. Never log it.
 let input = '';
@@ -50,13 +51,19 @@ const existing = previousConfig?.match(/return (\{.*\});/);
 let existingConfig;
 try { if (existing) existingConfig = JSON.parse(existing[1]); } catch { /* The repo template reads Script Properties instead of embedding JSON. */ }
 if (activate && !existingConfig) throw new Error('Run the email provisioning script before activation.');
+const configuredEncryptionKey = resolveEmailEncryptionKey(process.env.AUTH_EMAIL_ENCRYPTION_KEY, existingConfig);
 const config = existingConfig || {
  secret:crypto.randomBytes(32).toString('hex'),workerUrl:`${projectUrl}/functions/v1/rmc-email-worker`,
- encryptionKey:crypto.randomBytes(32).toString('base64'),hookSecret:`v1,whsec_${crypto.randomBytes(32).toString('base64')}`,
+ encryptionKey:configuredEncryptionKey,hookSecret:`v1,whsec_${crypto.randomBytes(32).toString('base64')}`,
 };
-config.encryptionKey ||= process.env.AUTH_EMAIL_ENCRYPTION_KEY;
 config.hookSecret ||= process.env.SEND_EMAIL_HOOK_SECRET;
 if (!config.secret || !config.encryptionKey || !config.hookSecret || config.workerUrl !== `${projectUrl}/functions/v1/rmc-email-worker`) throw new Error('Unexpected existing private email configuration.');
+// Keep the institution worker on the installed queue key; never rotate it on reruns.
+const serverEnvPath = '.env.server.local';
+const serverEnv = fs.existsSync(serverEnvPath) ? fs.readFileSync(serverEnvPath, 'utf8') : '';
+fs.writeFileSync(serverEnvPath, saveEmailEncryptionKey(serverEnv, configuredEncryptionKey), { mode: 0o600 });
+process.env.AUTH_EMAIL_ENCRYPTION_KEY = configuredEncryptionKey;
+console.log('Saved the matching email encryption key in the ignored server environment.');
 if (!activate) {
  await management('/secrets','POST',[
   {name:'AUTH_EMAIL_WORKER_SECRET',value:config.secret},{name:'AUTH_EMAIL_ENCRYPTION_KEY',value:config.encryptionKey},{name:'SEND_EMAIL_HOOK_SECRET',value:config.hookSecret},
