@@ -1,3 +1,4 @@
+import { runtimeInstitution } from '../lib/institutionRuntime';
 import { errorMessage } from '../lib/errors';
 import ErrorNotice from '../components/ui/ErrorNotice';
 import { signInDestination } from '../lib/navigationMemory';
@@ -448,10 +449,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ defaultOpenLogin = false }) =
     }
   ];
 
-  const supportEmail = import.meta.env.VITE_SUPPORT_EMAIL || '';
-  const supportPhone = import.meta.env.VITE_SUPPORT_PHONE || '';
-  const campusName = import.meta.env.VITE_CAMPUS_NAME || '';
-  const campusMap = import.meta.env.VITE_CAMPUS_MAP_URL || '';
+  const supportEmail = runtimeInstitution?.supportEmail || import.meta.env.VITE_SUPPORT_EMAIL || '';
+  const supportPhone = runtimeInstitution ? '' : import.meta.env.VITE_SUPPORT_PHONE || '';
+  const campusName = runtimeInstitution?.name || import.meta.env.VITE_CAMPUS_NAME || '';
+  const campusMap = runtimeInstitution ? '' : import.meta.env.VITE_CAMPUS_MAP_URL || '';
   const contactLinks = [
     ...(supportEmail ? [{ icon: Mail, label: 'System Support', value: supportEmail, action: () => window.open(`mailto:${supportEmail}`), color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' }] : []),
     ...(supportPhone ? [{ icon: Phone, label: 'School office', value: supportPhone, action: () => window.open(`tel:${supportPhone}`), color: 'text-green-500', bg: 'bg-green-50 dark:bg-green-900/20' }] : []),
@@ -1088,7 +1089,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ defaultOpenLogin = false }) =
                           </div>
                           <div>
                              <h3 className="text-xl font-black text-brand-900 dark:text-white uppercase tracking-tight">{mod.role}</h3>
-                             <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">School access depends on assigned duties</span>
+                             <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">School access depends on assigned duties</span>
                           </div>
                        </div>
                        
@@ -1122,7 +1123,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ defaultOpenLogin = false }) =
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                {workflowSteps.map((step, idx) => (
                   <div key={idx} className="relative p-8 rounded-3xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 space-y-4">
-                     <span className="text-4xl font-black text-gold-500/30 dark:text-gold-400/20 block">{step.step}</span>
+                     <span className="text-4xl font-black text-gold-700 dark:text-gold-300 block">{step.step}</span>
                      <h3 className="text-lg font-black text-brand-900 dark:text-white uppercase tracking-tight">{step.title}</h3>
                      <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed font-medium">{step.desc}</p>
                   </div>
@@ -1177,7 +1178,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ defaultOpenLogin = false }) =
                        <link.icon size={20} />
                     </div>
                     <div className="min-w-0">
-                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">{link.label}</p>
+                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-0.5">{link.label}</p>
                        <p className="break-words text-xs font-bold text-brand-900 dark:text-white">{link.value}</p>
                     </div>
                     <button aria-label={`Open ${link.label}`} className="ml-auto shrink-0 p-2 text-slate-300 hover:text-brand-900 dark:hover:text-white transition-colors">

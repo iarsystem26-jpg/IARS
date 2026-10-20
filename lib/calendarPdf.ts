@@ -22,7 +22,7 @@ export function createCalendarPdf(month: string, items: CalendarItem[], closures
   doc.setFillColor(...gold).rect(0, 34, width, 1, 'F');
   const titleX = branding ? margin + 28 : margin;
   if (branding) drawPdfSchoolSeal(doc, branding.logo, margin + 1, 6, 20);
-  doc.setFont('helvetica', 'bold').setFontSize(10).setTextColor(255, 215, 90).text('IARS / RMC ATTENDANCE', titleX, 10);
+  doc.setFont('helvetica', 'bold').setFontSize(10).setTextColor(255, 215, 90).text('IARS / ATTENDANCE', titleX, 10);
   doc.setFontSize(23).setTextColor(255, 255, 255).text(monthTitle, titleX, 22);
   if (branding) {
    doc.setFont('helvetica', 'normal').setFontSize(7);

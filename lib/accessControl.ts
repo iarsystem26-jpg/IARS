@@ -60,7 +60,7 @@ export const DEFAULT_CORE_ROLES: Record<string, CoreRole> = {
     permissions: ['calendar.view', 'calendar.view_scope', 'calendar.manage_schedules',
       'directory.transfer_students', 'directory.manage_structure', 'directory.create_units', 'directory.manage_members', 'attendance.scan', 'events.approve',
       'directory.add_members_manually', 'directory.change_member_designation', 'directory.manage_student_sanctions',
-      'attendance.manage', 'events.manage', 'ossa.manage_cases', 'system.health',
+      'attendance.manage', 'events.manage', 'ossa.manage_cases',
     ],
     isBuiltIn: true,
   },

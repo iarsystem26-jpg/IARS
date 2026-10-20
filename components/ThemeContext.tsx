@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { unitStorageKey } from '../lib/educationalUnit';
+import { runtimeInstitution } from '../lib/institutionRuntime';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 
@@ -13,8 +15,8 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<ThemeMode>(() => {
-    const saved = localStorage.getItem('iars-theme') as ThemeMode;
-    return (saved === 'light' || saved === 'dark' || saved === 'system') ? saved : 'system';
+    const saved = localStorage.getItem(unitStorageKey('theme')) as ThemeMode;
+    return (saved === 'light' || saved === 'dark' || saved === 'system') ? saved : runtimeInstitution?.appearance || 'system';
   });
 
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
@@ -57,7 +59,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const setTheme = (mode: ThemeMode) => {
     setThemeState(mode);
-    localStorage.setItem('iars-theme', mode);
+    localStorage.setItem(unitStorageKey('theme'), mode);
   };
 
   const toggleTheme = () => {

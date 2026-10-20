@@ -1,12 +1,26 @@
 import { afterAll, afterEach, expect, it, vi } from 'vitest';
 vi.hoisted(() => vi.stubEnv('VITE_GOOGLE_DRIVE_GAS_URL', 'https://image-service.test/exec'));
 vi.mock('./supabase', () => ({ supabase: { auth: { getSession: vi.fn().mockResolvedValue({ data: { session: null } }) } } }));
-import { createDriveImage, getDriveImage, updateDriveImage, publicDriveImageUrl, deleteDriveImage, retainProfileImage, fileAsDataUrl } from './googleDrive';
+import { createDriveImage, getDriveImage, updateDriveImage, publicDriveImageUrl, deleteDriveImage, retainProfileImage, fileAsDataUrl, manageDriveFolder } from './googleDrive';
 
 import { toast, toastStore } from './toast';
 afterAll(() => vi.unstubAllEnvs());
 
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); sessionStorage.clear(); toastStore.getSnapshot().forEach(item => toast.dismiss(item.id)); });
+it('shares repeated folder reads without progress toasts and releases them after completion', async () => {
+  let finish!: (response: unknown) => void;
+  const fetcher = vi.fn(() => new Promise(resolve => { finish = resolve; }));
+  vi.stubGlobal('fetch', fetcher);
+  const first = manageDriveFolder('setup');
+  const second = manageDriveFolder('setup');
+  await vi.waitFor(() => expect(fetcher).toHaveBeenCalledTimes(1));
+  expect(toastStore.getSnapshot()).toHaveLength(0);
+  finish({ ok: true, status: 200, text: async () => JSON.stringify({ success: true, folder: { id: 'root' }, folders: [] }) });
+  await Promise.all([first, second]);
+  fetcher.mockResolvedValueOnce({ ok: true, status: 200, text: async () => JSON.stringify({ success: true, folder: { id: 'root' }, folders: [] }) });
+  await manageDriveFolder('setup');
+  expect(fetcher).toHaveBeenCalledTimes(2);
+});
 it('keeps uploads disabled without contacting a previous image service when no endpoint is configured', async () => {
   vi.stubEnv('VITE_GOOGLE_DRIVE_GAS_URL', '');
   vi.resetModules();

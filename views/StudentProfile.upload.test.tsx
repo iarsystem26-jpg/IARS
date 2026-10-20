@@ -1,10 +1,11 @@
-import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import StudentProfile from './StudentProfile';
 import { toast, toastStore } from '../lib/toast';
 
 const api = vi.hoisted(() => ({ save: vi.fn() }));
+vi.hoisted(() => vi.stubEnv('VITE_GOOGLE_DRIVE_GAS_URL', 'https://image-service.test/exec'));
 vi.mock('virtual:pwa-register/react', () => ({ useRegisterSW: () => ({ needRefresh: [false, vi.fn()], updateServiceWorker: vi.fn() }) }));
 vi.mock('../components/AuthContext', () => ({ useAuth: () => ({ profile: {
   uid: 'student', name: 'Student', student_id: '123', role: 'student', email: 'test@example.test', photo_url: '', school_data: {},
@@ -20,6 +21,7 @@ vi.mock('../components/ui/ProfileAvatar', () => ({ default: () => null }));
 
 beforeEach(() => { api.save.mockReset().mockResolvedValue(undefined); });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); toastStore.getSnapshot().forEach(item => toast.dismiss(item.id)); });
+afterAll(() => vi.unstubAllEnvs());
 
 it('retains a profile photo locally, uploads only on Save, and allows retry after upload failure', async () => {
   const fetcher = vi.fn().mockRejectedValueOnce(new Error('Network offline')).mockResolvedValue({

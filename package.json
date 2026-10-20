@@ -1,5 +1,5 @@
 {
-  "name": "rmc-ssg-tracker",
+  "name": "iars",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -8,6 +8,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "configure:drive": "node scripts/configure-drive.mjs",
+    "configure:email": "powershell -NoProfile -File scripts/configure-gas-email.ps1",
     "configure:hosting": "node scripts/configure-hosting.mjs",
     "configure:passkeys": "powershell -NoProfile -File scripts/configure-supabase-passkeys.ps1 -Apply",
     "test:passkeys:browser": "node scripts/browser-passkeys-check.mjs",
@@ -18,6 +20,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:pwa": "node scripts/verify-pwa-security.mjs",
+    "test:branding:browser": "node scripts/check-branding-browser.mjs",
     "test:offline:integration": "node scripts/verify-offline-attendance.mjs",
     "test:offline:browser": "node scripts/browser-offline-attendance-check.mjs",
     "test:scanner:integration": "node scripts/verify-fast-scanner.mjs",
@@ -27,7 +30,9 @@
     "test:organizations": "node scripts/verify-organizations.mjs",
     "test:organizations:browser": "node scripts/browser-organizations-check.mjs",
     "test:events:browser": "node scripts/browser-events-check.mjs",
-    "seed:test-accounts": "node scripts/seed-test-accounts.mjs"
+    "seed:test-accounts": "node scripts/seed-test-accounts.mjs",
+    "institutions:worker": "powershell -NoProfile -File scripts/institution-worker.ps1",
+    "institutions:check": "powershell -NoProfile -File scripts/institution-worker.ps1 -Check"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.116.0",
@@ -68,7 +73,9 @@
     "workbox-window": "7.4.1"
   },
   "overrides": {
-    "exceljs": { "uuid": "11.1.1" },
+    "exceljs": {
+      "uuid": "11.1.1"
+    },
     "postcss-selector-parser": "7.1.6"
   }
 }

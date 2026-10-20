@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import { beforeEach, expect, it, vi } from 'vitest';
 let context:any,send:any,fetch:any,properties:Map<string,string>,triggers:any[],drafts:Map<string,any>,sent:Map<string,any>,create:any;
-const message={to:'student@example.test',subject:'Confirm email',text:'Plain text',html:'<img src="https://iars-blond.vercel.app/academic-seal-transparent.png">'};
+const message={to:'student@example.test',subject:'Confirm email',text:'Plain text',logoUrl:'https://unit.example.test/iars-icon.png',html:'<img src="https://unit.example.test/iars-icon.png">'};
 beforeEach(()=>{
  properties=new Map();triggers=[];drafts=new Map();sent=new Map();send=vi.fn();
  create=vi.fn((to:string,subject:string,text:string,options:any)=>{
@@ -12,7 +12,7 @@ beforeEach(()=>{
   }};drafts.set(id,draft);return draft;
  });
  fetch=vi.fn((url:string,options:any)=>{
-  if(url.includes('academic-seal'))return{getResponseCode:()=>200,getBlob:()=>({setName:()=>({logo:true})})};
+  if(url.includes('iars-icon'))return{getResponseCode:()=>200,getBlob:()=>({setName:()=>({logo:true})})};
   const body=JSON.parse(options.payload);
   const value=body.action==='claim'?{messages:[{id:'job',lease:'lease',draftId:null}],review:[]}:body.action==='prepare'?{message}:{acknowledged:true,recorded:true};
   return{getResponseCode:()=>200,getContentText:()=>JSON.stringify(value)};

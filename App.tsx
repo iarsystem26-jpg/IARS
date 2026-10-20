@@ -17,6 +17,7 @@ const StudentRecords = lazy(() => import('./views/StudentRecords'));
 const VerifyClearance = lazy(() => import('./views/VerifyClearance'));
 const StudentProfile = lazy(() => import('./views/StudentProfile'));
 const MayorScanner = lazy(() => import('./views/MayorScanner'));
+const InstitutionSetup = lazy(() => import('./views/InstitutionSetup'));
 const SSGPanel = lazy(() => import('./views/SSGPanel'));
 const ClassStudentDetail = lazy(() => import('./views/ClassStudentDetail'));
 const StudentTransfers = lazy(() => import('./views/StudentTransfers'));
@@ -189,6 +190,8 @@ const App: React.FC = () => {
               <HierarchyWorkspace><SSGPanel /></HierarchyWorkspace>
             </ProtectedRoute>
           } />)}
+
+          {['/admin/institutions/new', '/admin/institutions/:institutionId/edit'].map(path => <Route key={path} path={path} element={<ProtectedRoute roles={['admin']}><InstitutionSetup /></ProtectedRoute>} />)}
 
           {['/ssg/panel/students/:studentUid', '/admin/hierarchy/students/:studentUid'].map(path => <Route key={path} path={path} element={<ProtectedRoute permissionAny={['directory.manage_structure', 'directory.manage_members', 'directory.transfer_students', 'attendance.scan', 'events.manage']}><HierarchyWorkspace><ClassStudentDetail /></HierarchyWorkspace></ProtectedRoute>} />)}
           <Route path="/ssg/transfers" element={<ProtectedRoute permission="directory.transfer_students"><StudentTransfers /></ProtectedRoute>} />

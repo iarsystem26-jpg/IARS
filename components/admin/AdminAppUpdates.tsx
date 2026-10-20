@@ -1,3 +1,4 @@
+import PasswordInput from '../ui/PasswordInput';
 import { useState } from 'react';
 import { useAuth } from '../AuthContext';
 import Button from '../ui/Button';
@@ -68,7 +69,7 @@ export default function AdminAppUpdates() {
     </div>
     <Modal open={open} onClose={close} closeOnBackdrop={!busy} title="Confirm refresh for everyone" description="Verify your identity before refreshing all connected browsers.">
       <form onSubmit={event => void submit(event)} className="space-y-4">
-        <label className="block">Current admin password<input type="password" autoComplete="current-password" required disabled={busy} value={password} onChange={event => setPassword(event.target.value)} className="app-control mt-2 w-full rounded-xl border p-3" /></label>
+        <label className="block">Current admin password<PasswordInput toggleLabel="current admin password" autoComplete="current-password" required disabled={busy} value={password} onChange={event => setPassword(event.target.value)} className="app-control mt-2 w-full rounded-xl border p-3" /></label>
         {needsMfa && <label className="block">Authenticator code<input inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" required disabled={busy} value={code} onChange={event => setCode(event.target.value)} className="app-control mt-2 w-full rounded-xl border p-3" /></label>}
         <label className="block">Type initiate to confirm<input autoComplete="off" required disabled={busy} value={typed} onChange={event => setTyped(event.target.value)} className="app-control mt-2 w-full rounded-xl border p-3" /></label>
         {error && <ErrorNotice error={error} operation="Refresh everyone" />}

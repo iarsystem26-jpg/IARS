@@ -4,6 +4,7 @@ import { webcrypto } from 'node:crypto';
 import { TextEncoder, TextDecoder } from 'node:util';
 import { writeFileSync } from 'node:fs';
 import type { OfflineRoster } from './offlineAttendance';
+import { unitStorageKey } from './educationalUnit';
 
 const api = vi.hoisted(() => ({ rpc: vi.fn(), getSession: vi.fn() }));
 vi.mock('./supabase', () => ({ supabase: { rpc: api.rpc, auth: { getSession: api.getSession } } }));
@@ -124,7 +125,7 @@ it('upgrades version-one encrypted queues and indexes their states without dropp
   const queued = { actorUid: 'mayor', studentName: 'Student', studentId: 'S-001', eventTitle: 'Assembly', state: 'pending', attempts: 0,
     submission: { ...manual, id, sessionId: 'old-session', capturedAt: Date.now() } };
   const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: new TextEncoder().encode(`mayor:scan:${id}`) }, encryptionKey, new TextEncoder().encode(JSON.stringify(queued)));
-  const request = indexedDB.open('rmc-offline-attendance-v1', 1);
+  const request = indexedDB.open(unitStorageKey('offline-attendance-v1'), 1);
   await new Promise<void>((resolve, reject) => {
     request.onupgradeneeded = () => { request.result.createObjectStore('keys'); request.result.createObjectStore('records', { keyPath: 'id' }).createIndex('owner', 'owner'); };
     request.onsuccess = () => { const db = request.result, tx = db.transaction(['keys', 'records'], 'readwrite'); tx.objectStore('keys').put(encryptionKey, 'mayor'); tx.objectStore('records').put({ id, owner: 'mayor', kind: 'scan', iv, cipher }); tx.oncomplete = () => { db.close(); resolve(); }; tx.onerror = () => reject(tx.error); };
@@ -228,7 +229,7 @@ it('persists encrypted attendance before returning a pending result, across relo
   const queued = await service.queueAttendance(roster, manual);
   expect(queued.state).toBe('pending');
   expect(api.rpc).toHaveBeenCalledTimes(1);
-  const request = indexedDB.open('rmc-offline-attendance-v1');
+  const request = indexedDB.open(unitStorageKey('offline-attendance-v1'));
   const rows = await new Promise<any[]>(resolve => { request.onsuccess = () => { const tx = request.result.transaction('records'); const r = tx.objectStore('records').getAll(); r.onsuccess = () => resolve(r.result); }; });
   expect(JSON.stringify(rows)).not.toContain('Student');
   expect(rows.find(row => row.kind==='scan').cipher.byteLength).toBeGreaterThan(16);
@@ -246,7 +247,7 @@ it('persists encrypted attendance before returning a pending result, across relo
 });
 it('fails closed when encrypted roster data is tampered with', async () => {
   await prepare();
-  const request = indexedDB.open('rmc-offline-attendance-v1');
+  const request = indexedDB.open(unitStorageKey('offline-attendance-v1'));
   await new Promise<void>((resolve, reject) => {
     request.onsuccess = () => {
       const tx = request.result.transaction('records', 'readwrite'), store = tx.objectStore('records');

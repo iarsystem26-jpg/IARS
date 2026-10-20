@@ -1,3 +1,4 @@
+import { educationalUnit } from './educationalUnit';
 import type { UserProfile } from '../types';
 import { formatManilaDate } from './dateTime';
 
@@ -14,6 +15,7 @@ export function getDigitalIdRole(role: string): string {
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image();
+    image.crossOrigin = 'anonymous';
     const timeout = setTimeout(() => reject(new Error('Card image took too long to load')), 5000);
     image.onload = () => { clearTimeout(timeout); resolve(image); };
     image.onerror = () => { clearTimeout(timeout); reject(new Error('Card image could not be rendered')); };
@@ -30,7 +32,7 @@ export async function renderDigitalId(profile: UserProfile, schoolName: string, 
   if (!ctx) throw new Error('Canvas unavailable');
   const [qrImage, seal] = await Promise.all([
     loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(qrSvg))),
-    loadImage(`${import.meta.env.BASE_URL}academic-seal-transparent.png`).catch(() => null),
+    loadImage(educationalUnit.logoUrl).catch(() => null),
   ]);
 
   const rounded = (x: number, y: number, width: number, height: number, radius: number, fill: string, stroke?: string) => {
@@ -108,13 +110,12 @@ export async function renderDigitalId(profile: UserProfile, schoolName: string, 
   ctx.fillRect(36, 256, 828, 5);
 
   ctx.beginPath();
-  ctx.arc(138, 142, 60, 0, Math.PI * 2);
+  ctx.roundRect(78, 82, 120, 120, 16);
   ctx.strokeStyle = GOLD;
   ctx.lineWidth = 2;
   ctx.stroke();
   if (seal) {
     ctx.save();
-    ctx.beginPath(); ctx.arc(138, 142, 56, 0, Math.PI * 2); ctx.clip();
     ctx.drawImage(seal, 82, 86, 112, 112);
     ctx.restore();
   } else {

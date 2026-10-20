@@ -141,7 +141,7 @@ it('keeps requester identity visible when their current profile is unavailable',
  const card = within(screen.getByRole('region', { name: 'Requester profile' }));
  expect(card.getByText('Jane')).toBeVisible();
  expect(card.getByText('Student ID: 26-0001-001')).toBeVisible();
- expect(card.getByRole('img')).toHaveAttribute('src', '/avatar-placeholder.svg');
+ expect(card.getByRole('img')).toHaveAttribute('src', '/iars-icon.png');
 });
 
 

@@ -5,10 +5,21 @@ import react from '@vitejs/plugin-react';
 import { loadEnv } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { securityHeaders, validatePublicEnvironment } from './security.config.mjs';
+import { educationalUnitConfig } from './config/educationalUnit';
+import { existsSync, readFileSync } from 'node:fs';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), 'VITE_');
     validatePublicEnvironment(env);
+    const unit = educationalUnitConfig(env);
+    for (const asset of [unit.logoUrl, unit.pwaIcon192, unit.pwaIcon512, unit.pwaMaskable, unit.appleIcon]) {
+      if (!existsSync(path.join(process.cwd(), 'public', asset))) throw new Error(`Missing educational unit asset: ${asset}`);
+    }
+    for (const [asset, size] of [[unit.pwaIcon192, 192], [unit.pwaIcon512, 512], [unit.pwaMaskable, 512], [unit.appleIcon, 180]] as const) {
+      const png = readFileSync(path.join(process.cwd(), 'public', asset));
+      if (png.length < 24 || png.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a' || png.readUInt32BE(16) !== size || png.readUInt32BE(20) !== size) throw new Error(`${asset} must be a ${size}×${size} PNG.`);
+    }
+    const escapeHtml = (value: string) => value.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]!);
     const headers = securityHeaders(env);
     const buildVersion = randomUUID();
     return {
@@ -25,6 +36,13 @@ export default defineConfig(({ mode }) => {
       preview: { host: '127.0.0.1', headers },
       plugins: [react(), {
         name: 'production-security-headers',
+        transformIndexHtml(html) {
+          return html.replace(/<title>.*?<\/title>/, `<title>${escapeHtml(unit.appName)}</title>`)
+            .replace(/(<meta name="theme-color" content=")[^"]+/, `$1${unit.primaryColor}`)
+            .replace(/(<meta name="apple-mobile-web-app-title" content=")[^"]+/, `$1${escapeHtml(unit.shortName)}`)
+            .replace('/icons/pwa-192.png', unit.pwaIcon192)
+            .replace('/icons/apple-touch-icon.png', unit.appleIcon);
+        },
         configurePreviewServer(server) {
           server.middlewares.use((request, response, next) => {
             const pathname = request.url?.split('?')[0];
@@ -43,16 +61,16 @@ export default defineConfig(({ mode }) => {
       }, VitePWA({
         registerType: 'prompt',
         injectRegister: false,
-        includeAssets: ['academic-seal-transparent.png', 'avatar-placeholder.svg', 'icons/*.png'],
+        includeAssets: ['iars-icon.png', 'iars-wordmark.png', unit.logoUrl.slice(1), 'avatar-placeholder.svg', 'icons/*.png'],
         manifest: {
-          id: '/', name: 'Institution Attendance and Records System', short_name: 'IARS',
+          id: '/', name: unit.appName, short_name: unit.shortName,
           description: 'School attendance, student records, events, and organizations.',
           lang: 'en', start_url: '/', scope: '/', display: 'standalone',
-          background_color: '#f8fafc', theme_color: '#2563eb',
+          background_color: '#f8fafc', theme_color: unit.primaryColor,
           icons: [
-            { src: '/icons/pwa-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
-            { src: '/icons/pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
-            { src: '/icons/pwa-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+            { src: unit.pwaIcon192, sizes: '192x192', type: 'image/png', purpose: 'any' },
+            { src: unit.pwaIcon512, sizes: '512x512', type: 'image/png', purpose: 'any' },
+            { src: unit.pwaMaskable, sizes: '512x512', type: 'image/png', purpose: 'maskable' },
           ],
         },
         workbox: {

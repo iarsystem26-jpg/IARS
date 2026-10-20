@@ -240,7 +240,7 @@ const ActivityForm: React.FC<{ purpose: 'event' | 'ceremony'; organization?: Org
     try {
       if (profile && appData.isUserScopeFrozen(profile) && profile.role !== 'admin') throw new Error('Events are frozen for your scope.');
       if (bannerFile) {
-        const uploaded = await createDriveImage(bannerFile, `Event banner - ${title.trim()}`, editingEvent?.id || 'New event');
+        const uploaded = await createDriveImage(bannerFile, `Event banner - ${title.trim()}`, editingEvent?.id || 'New event', 'banners');
         payload.bannerUrl = uploaded.url;
         setBannerUrl(uploaded.url); setBannerPreview(uploaded.url); setBannerFile(null);
       }

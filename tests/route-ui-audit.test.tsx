@@ -1,3 +1,4 @@
+import { unitStorageKey } from '../lib/educationalUnit';
 vi.mock('../lib/personalCalendar', async original => ({ ...await original<any>(), loadScheduleNotices: vi.fn(async () => []) }));
 import React from 'react';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
@@ -446,7 +447,7 @@ describe('public route UI behavior', () => {
     ['registration', <Register />, /create your student account/i, /legal full name/i],
   ])('keeps the standalone %s card readable when dark mode is selected', async (_name, element, headingName, inputName) => {
     const user = userEvent.setup();
-    localStorage.setItem('iars-theme', 'light');
+    localStorage.setItem(unitStorageKey('theme'), 'light');
     renderRoute(element);
 
     await user.keyboard('{Escape}');
@@ -463,7 +464,7 @@ describe('public route UI behavior', () => {
 
   it('renders a long rejected registration status with wrapping and accessible actions', async () => {
     const rejectionReason = `REVIEW-${'X'.repeat(256)}`;
-    localStorage.setItem('iars-theme', 'dark');
+    localStorage.setItem(unitStorageKey('theme'), 'dark');
     routeState.auth = { isMock: true, profile: null, stats: null, user: { uid: 'applicant-1' } };
     routeState.applications = [{
       id: 'applicant-1',

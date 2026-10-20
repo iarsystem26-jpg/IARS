@@ -7,10 +7,21 @@ The root `.clasp.json` links `google-apps-script/` to the IARS Production Servic
 ```powershell
 clasp --user iarsystem26 show-authorized-user
 clasp --user iarsystem26 status
-clasp --user iarsystem26 push
+npm run configure:drive
+npm run configure:email
 ```
 
-The source is uploaded, but Google sign-in, the public image service, and Gmail delivery remain on hold. Pushing source does not authorize Gmail/Drive access, install triggers, or activate a web app deployment. Configure the new account's services before setting the frontend Google variables or activating the email hook.
+Drive and Gmail are provisioned using the educational unit's operator settings. See [educational unit provisioning](../docs/educational-units.md#drive-folders-and-email-provisioning). The installer creates the unit's folder, deploys the Drive API, and verifies it before saving its frontend URL. Email activation separately verifies owner consent and the every-minute Gmail trigger before enabling the Supabase email hook. Google sign-in is a separate configuration.
+
+Use the provisioning scripts for updates. A plain `clasp push` replaces generated server configuration with the repository's Script Properties templates; configure equivalent properties before deploying those templates. Never commit generated mail configuration.
+
+## Educational unit folders
+
+Each deployment is bound to one unit folder and one Supabase project. Uploads are arranged into Profile Photos, Organization Logos, and Event Banners. A Reports folder is also created for manual archiving; downloaded reports are not automatically uploaded. Private supporting documents stay in Supabase Storage.
+
+**Operations center → Drive folders** lets active administrators browse, create, rename, and trash empty custom subfolders. Required category folders and the unit root cannot be deleted through the API. Category folders retain their identity after renaming. Browser-provided IDs are checked against the configured root, and administrators from another unit cannot authenticate against this deployment.
+
+Folder endpoints use authorized POST bodies with an access token: `folder_setup`, `folder_read`, `folder_create` (`folderId` for parent, `name`), `folder_update` (`folderId`, `name`), and `folder_delete` (`folderId`). Omitting `folderId` selects the configured root. New image uploads accept `category: "photos" | "logos" | "banners"`; omitted categories default to photos. Existing files outside a newly provisioned root remain in place and are not automatically claimed or moved.
 
 ## Automatic Supabase keep-alive
 

@@ -1,9 +1,17 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { DEFAULT_CORE_ROLES, hasPermission, setMockDataRef } from './accessControl';
+import { canAccessSystemControls } from './systemControlsAccess';
 
 afterEach(() => setMockDataRef(null));
 
 describe('role permission boundaries', () => {
+  it('does not grant OSSA System Health access by default', () => {
+    setMockDataRef(null);
+    expect(hasPermission('ossa', 'system.health')).toBe(false);
+    expect(canAccessSystemControls('ossa', '?tab=health')).toBe(false);
+    expect(hasPermission('admin', 'system.health')).toBe(true);
+    expect(canAccessSystemControls('admin', '?tab=health')).toBe(true);
+  });
   it.each([
     { role: 'admin', scan: true, events: true, approve: false, sanctions: true, rbac: true },
     { role: 'ossa', scan: true, events: true, approve: true, sanctions: true, rbac: false },

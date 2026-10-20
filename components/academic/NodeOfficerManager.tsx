@@ -116,7 +116,7 @@ export function NodeOfficerManager({ node, actor, canManage, onChanged }: Props)
           },
           school_data: {
             type: 'College', level: 'Administration', section: assignment?.name || '',
-            department: assignment?.name || '', school_id: 'school_rmc',
+            department: assignment?.name || '', school_id: appData.getSchoolStructure()[0]?.id || '',
           },
         }, form.password);
       }

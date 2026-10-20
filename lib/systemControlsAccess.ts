@@ -7,7 +7,7 @@ export const systemControlPermissions = {
 
 export function canAccessSystemControls(role: string | undefined, search: string): boolean {
   const tab = new URLSearchParams(search).get('tab');
-  if (tab === 'legal' || tab === 'video' || tab === 'updates' || tab === 'enrollment' || tab === 'email') return role === 'admin';
+  if (tab === 'drive' || tab === 'legal' || tab === 'video' || tab === 'updates' || tab === 'enrollment' || tab === 'email') return role === 'admin';
   if (tab && Object.hasOwn(systemControlPermissions, tab)) {
     return hasPermission(role, systemControlPermissions[tab as keyof typeof systemControlPermissions]);
   }

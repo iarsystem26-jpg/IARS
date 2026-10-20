@@ -1,4 +1,5 @@
-export const NAVIGATION_PREFIX = 'rmc:navigation:v1:';
+import { unitStorageKey } from './educationalUnit';
+export const NAVIGATION_PREFIX = unitStorageKey('navigation:v1:');
 
 // Only browsing destinations belong in return history. Forms and auth flows
 // still survive a refresh through their URL, but Back never reopens them.

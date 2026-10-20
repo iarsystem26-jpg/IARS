@@ -10,6 +10,7 @@ Deno.serve(async (req: Request) => {
   const options = { auth: { persistSession: false, autoRefreshToken: false } };
   const admin = createClient(url, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, options);
   const client = createClient(url, Deno.env.get('SUPABASE_ANON_KEY')!, options);
+  const institutionSlug = Deno.env.get('IARS_INSTITUTION_SLUG');
   return enrollmentHandler(admin, client, async (credential, nonce) => {
     const audience = Deno.env.get('GOOGLE_CLIENT_ID');
     if (!audience) throw new Error('Google sign-in has not been configured by the school.');
@@ -17,8 +18,14 @@ Deno.serve(async (req: Request) => {
     if (payload.email_verified !== true || typeof payload.email !== 'string' || payload.nonce !== await sha256(nonce)) throw new Error('Google email verification failed. Choose your account again.');
     return payload.email.trim().toLowerCase();
   }, {
-    ready: Boolean(Deno.env.get('AUTH_EMAIL_ENCRYPTION_KEY')),
+    ready: Boolean(Deno.env.get('AUTH_EMAIL_ENCRYPTION_KEY') || institutionSlug),
     send: async (email, subject, body, userId) => {
+      if (!Deno.env.get('AUTH_EMAIL_ENCRYPTION_KEY') && institutionSlug) {
+        const redirect = new URL(EMAIL_SITE); redirect.searchParams.set('institution', institutionSlug);
+        const result = await client.auth.resend({ type: 'signup', email, options: { emailRedirectTo: redirect.href } });
+        if (result.error) throw result.error;
+        return;
+      }
       await enqueueIntent(admin,{kind:'intent',userId,email,recipient:email,action:'signup',subject:subject || undefined,body:body || undefined,redirect:`${EMAIL_SITE}/`},crypto.randomUUID(),Deno.env.get('AUTH_EMAIL_ENCRYPTION_KEY')!);
     },
   })(req);

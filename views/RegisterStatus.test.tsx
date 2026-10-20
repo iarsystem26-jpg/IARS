@@ -139,7 +139,7 @@ it('opens the app logo in the image modal and closes on backdrop click', async (
   await act(async () => { render(<RegisterStatus />); });
   await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'View app logo' })); });
   const dialog = screen.getByRole('dialog', { name: 'App logo' });
-  expect(within(dialog).getByRole('img', { name: 'IARS Academic Seal' })).toHaveAttribute('src', '/academic-seal-transparent.png');
+  expect(within(dialog).getByRole('img', { name: 'Institution logo' })).toHaveAttribute('src', '/iars-icon.png');
   fireEvent.click(screen.getByTestId('modal-backdrop'));
   expect(screen.queryByRole('dialog')).toBeNull();
 });

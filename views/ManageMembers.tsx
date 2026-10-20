@@ -23,7 +23,7 @@ import { hasPermission } from '../lib/accessControl';
 
 const deriveSchoolData = (path: SchoolNode[]): UserProfile['school_data'] => {
   const serialized = serializeAcademicAssignment(path);
-  return { ...serialized.schoolData, school_id: serialized.assignment.campusId || 'school_rmc', academic_assignment: serialized.assignment };
+  return { ...serialized.schoolData, school_id: serialized.assignment.campusId || '', academic_assignment: serialized.assignment };
 };
 
 const ManageMembers: React.FC = () => {

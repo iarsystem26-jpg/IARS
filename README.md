@@ -1,13 +1,13 @@
-# RMC Attendance
+# IARS — Institution Attendance & Records System
 
-React/Vite application connected to Supabase project `wpivcedgktsrdsvhsuuu`.
+React/Vite application with a separate Supabase project for each independent institution. The administrator can create institutions with their own logo, theme, and database from **School Hierarchy & Accounts → Independent institutions → Add institution**. A server-side provisioning worker handles project creation. See [educational unit setup](docs/educational-units.md).
 
 ```sh
 npm ci
 npm run dev
 ```
 
-The local environment is already configured. For another workstation, copy `.env.example` to `.env.local` and supply the project's publishable key. Only `VITE_SUPABASE_URL` and the publishable key belong in the frontend environment. Never put a service-role key in a `VITE_` variable.
+Copy `.env.example` to `.env.local` and supply the unit’s Supabase URL, publishable key, and public branding settings. Never put a service-role key in a `VITE_` variable.
 
 Student IDs use `YYYY-XXXXXL`: four year digits, a hyphen, five numbers, and one letter, for example `2025-00046A`. Registration and student/mayor member imports require this format; letter matching is case-insensitive. Apply the `student_id_letter_suffix` database migration before using the updated enrollment flow.
 
@@ -114,7 +114,7 @@ The browser check needs Chrome, `.demo-accounts.local`, and the server key in ig
 
 ## Google login and enrollment setup
 
-The fresh production deployment uses Vercel project `iars` at `https://iars-blond.vercel.app` and Supabase project `wpivcedgktsrdsvhsuuu`. Database migrations, Edge Functions, backend environment, MFA, passkeys, and security headers are configured. Google sign-in is configured for the new Google account, with matching client IDs in the frontend, Supabase provider, and enrollment Edge Function. Google Drive uploads and Gmail delivery remain on hold. The image service environment variable is unset and the custom email hook is inactive. Enrollment confirmation and in-app password recovery require the mail setup to be completed. There is no fallback to the old image service. No old school records or users were imported.
+The fresh production deployment uses Vercel project `iars` at `https://iars-blond.vercel.app` and Supabase project `wpivcedgktsrdsvhsuuu`. Database migrations, Edge Functions, backend environment, MFA, passkeys, and security headers are configured. Google sign-in is configured for the new Google account, with matching client IDs in the frontend, Supabase provider, and enrollment Edge Function. Google Drive uploads and Gmail delivery remain on hold. The image service environment variable is unset and the custom email hook is inactive. Enrollment confirmation and in-app password recovery require the mail setup to be completed. There is no fallback to the old image service. The old project's 85 directory units, six role definitions, school settings, legal pages, homepage video, enrollment confirmation settings, and one application have been transferred. Five test accounts and one additional user were imported; the matching legacy owner account maps to the existing production administrator, whose login and privileges are preserved. The test administrator username is `admin-test`; the production administrator remains `admin`. Operational logs, notifications, mail history, and queued emails were not imported. Account credentials and migration backups are stored privately outside this repository.
 
 On this Windows workspace, `node scripts/configure-cloud-environment.mjs` synchronizes allowlisted public frontend variables and the Edge Function's Google client ID. `node scripts/configure-google-provider.mjs` previews provider/URL differences and verifies hosted settings; add `--apply` to save the declared configuration and the Google secret. These scripts read `.env.local` and `.env.server.local`, keep credentials out of command arguments, and suppress secret values. `node scripts/verify-cloud-google.mjs` verifies matching cloud values, authorization callback, deployed invalid-token rejection, and absence of the Google client secret from the frontend build. Supply `GOOGLE_CLIENT_SECRET` only in the ignored server environment file.
 

@@ -1,3 +1,4 @@
+import { educationalUnit } from '../../lib/educationalUnit';
 import ErrorNotice from '../ui/ErrorNotice';
 import { useEffect, useRef, useState } from 'react';
 import { CalendarDays, ChevronDown, Download, FileText } from 'lucide-react';
@@ -42,7 +43,7 @@ export default function CalendarExport({ month, items, closures, filter, disable
       return new Uint8Array(await blob.arrayBuffer());
      } finally { bitmap.close(); }
     };
-    const fallbackUrl = `${import.meta.env.BASE_URL}academic-seal-transparent.png`;
+    const fallbackUrl = educationalUnit.logoUrl;
     const logo = await loadLogo(logoUrl || fallbackUrl).catch(() => loadLogo(fallbackUrl));
     createCalendarPdf(month, items, closures, filter, Date.now(), { unitName: unitName === 'School / branch not assigned' ? 'School-wide calendar' : unitName, logo }).save(`IARS-calendar-${month}.pdf`);
    } else {

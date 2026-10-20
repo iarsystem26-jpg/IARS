@@ -1,3 +1,6 @@
+import { educationalUnit } from './educationalUnit';
+import { runtimeInstitution } from './institutionRuntime';
+
 export const legalLinks = [
   { path: '/privacy-policy', title: 'Privacy Policy' },
   { path: '/data-deletion', title: 'Data Deletion' },
@@ -7,7 +10,7 @@ export const legalLinks = [
 
 // Use verified institutional details; never invent a controller or privacy contact.
 export const privacyContact = {
-  school: import.meta.env.VITE_SCHOOL_LEGAL_NAME?.trim() || import.meta.env.VITE_CAMPUS_NAME?.trim() || '',
-  email: import.meta.env.VITE_PRIVACY_EMAIL?.trim() || '',
-  office: import.meta.env.VITE_PRIVACY_OFFICE?.trim() || 'your school administration office',
+  school: runtimeInstitution?.legalName || import.meta.env.VITE_SCHOOL_LEGAL_NAME?.trim() || educationalUnit.name,
+  email: runtimeInstitution?.privacyEmail || import.meta.env.VITE_PRIVACY_EMAIL?.trim() || '',
+  office: runtimeInstitution?.address || import.meta.env.VITE_PRIVACY_OFFICE?.trim() || 'your school administration office',
 };

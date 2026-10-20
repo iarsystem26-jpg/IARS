@@ -5,7 +5,7 @@ const email = { email_action_type: 'signup', token_hash: 'a'.repeat(64), redirec
 const event = { user: { email: 'student@example.test', new_email: 'new@example.test' }, email_data: email };
 it('renders a responsive layout with seal, legal links, website button and plain-text fallback', () => {
  const result = authEmailMessages(event,'https://project.supabase.co')[0];
- expect(result.html).toContain('max-width:600px'); expect(result.html).toContain('academic-seal-transparent.png');
+ expect(result.html).toContain('max-width:600px'); expect(result.html).toContain('iars-icon.png');
  for (const path of ['privacy-policy','data-privacy-agreement','terms-of-service','data-deletion']) expect(result.html).toContain(`/#/${path}`);
  expect(result.html).toContain('Open IARS website'); expect(result.text).toContain('Confirm email address: https://project.supabase.co/auth/v1/verify');
  expect(result.html).toContain(`${EMAIL_SITE}/#/privacy-policy`);

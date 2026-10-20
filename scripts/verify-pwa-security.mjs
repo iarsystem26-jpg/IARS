@@ -65,7 +65,7 @@ try {
   for (const url of cachedUrls) {
     const parsed = new URL(url);
     assert.equal(parsed.origin, new URL(base).origin, `Foreign cache entry: ${parsed.origin}`);
-    assert.ok(/^\/(?:assets\/|icons\/|fonts\/[^/]+\.woff2$|index\.html$|manifest\.webmanifest$|academic-seal(?:\.jpeg|-transparent\.png)$|avatar-placeholder\.svg$)/.test(parsed.pathname), `Unexpected cached path: ${parsed.pathname}`);
+    assert.ok(/^\/(?:assets\/|icons\/|units\/|fonts\/[^/]+\.woff2$|index\.html$|manifest\.webmanifest$|iars-(?:icon|wordmark)\.png$|academic-seal(?:\.jpeg|-transparent\.png)$|avatar-placeholder\.svg$)/.test(parsed.pathname), `Unexpected cached path: ${parsed.pathname}`);
     assert.ok(!/access_token|refresh_token|password|code=/.test(parsed.search));
   }
   pass('cache contains only app assets after real authentication; no API responses or credentials');

@@ -1,3 +1,4 @@
+import PasswordInput from '../components/ui/PasswordInput';
 import ErrorNotice from '../components/ui/ErrorNotice';
 import { OrganizationCardsSkeleton } from '../components/ui/PageLoading';
 import { hierarchyPathForRole } from '../lib/workspaceRoutes';
@@ -164,7 +165,7 @@ export default function Organizations({ publicDirectory = false }: { publicDirec
     }}>{joining.joining === 'approval' ? 'Submit application' : 'Join organization'}</Button></>}>
       {error && <ErrorNotice error={error} operation="Organizations"></ErrorNotice>}
       <p className="text-sm">Membership is available to students within {unitName(joining)}.</p>
-      {joining.key_required && <label className="app-field-label mt-4 block">Join key<input autoComplete="off" type="password" className="input-field mt-2" value={joinKey} onChange={e => setJoinKey(e.target.value)} /></label>}
+      {joining.key_required && <label className="app-field-label mt-4 block">Join key<PasswordInput autoComplete="off" toggleLabel="join key" className="input-field mt-2" value={joinKey} onChange={e => setJoinKey(e.target.value)} /></label>}
     </Modal>}
   </Page>;
 }

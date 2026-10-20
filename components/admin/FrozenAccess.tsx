@@ -1,3 +1,4 @@
+import { educationalUnit } from '../../lib/educationalUnit';
 import React, { useState } from 'react';
 import { LockKeyhole, ShieldCheck, RefreshCw, LogOut, Building2, Clock3, UserRound, ExternalLink } from 'lucide-react';
 import { useAuth } from '../AuthContext';
@@ -25,7 +26,7 @@ export default function FrozenAccess() {
   return <div className="flex min-h-dvh flex-col bg-[radial-gradient(ellipse_at_top,_#e7eef8_0%,_#f8fafc_55%)] text-slate-900 dark:bg-[radial-gradient(ellipse_at_top,_#142643_0%,_#080f1d_60%)] dark:text-slate-100">
     <header className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-5 py-4 sm:px-8 sm:py-5">
       <div className="flex min-w-0 items-center gap-3">
-        <img src={`${import.meta.env.BASE_URL}academic-seal-transparent.png`} alt="IARS logo" className="h-12 w-12 shrink-0 rounded-full bg-white object-contain p-0.5 ring-1 ring-slate-200 dark:ring-slate-700" />
+        <img src={educationalUnit.logoUrl} alt="IARS logo" className="h-12 w-12 shrink-0 object-contain" />
         <div className="min-w-0"><p className="text-base font-extrabold tracking-wide text-brand-900 dark:text-white">IARS</p><p className="max-w-48 text-[11px] font-medium leading-4 text-slate-500 dark:text-slate-400">Institution Attendance &amp; Records System</p></div>
       </div>
       <ThemeToggle className="min-h-11 min-w-11" />

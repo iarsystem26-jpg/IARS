@@ -1,3 +1,4 @@
+import PasswordInput from '../ui/PasswordInput';
 import { errorMessage } from '../../lib/errors';
 import ErrorNotice from '../ui/ErrorNotice';
 import { formatManilaDateTime } from '../../lib/dateTime';
@@ -134,7 +135,7 @@ export const AdminFreezeView: React.FC<{ actorName?: string }> = ({ actorName })
 
   const authFields = <div className="space-y-4">
     <div className="rounded-xl border border-cyan-200 bg-cyan-50 p-3 text-xs text-cyan-900 dark:border-cyan-900/50 dark:bg-cyan-950/30 dark:text-cyan-100"><div className="flex items-center gap-2 font-bold"><ShieldCheck size={15} /> Verify this freeze action</div><p className="mt-1 opacity-80">Re-enter your password before changing access. Child units under a selected parent will be included automatically.</p></div>
-    {!configurationError && <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Current password<input autoComplete="current-password" type="password" value={password} onChange={e => setPassword(e.target.value)} className="app-control mt-2 h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Enter password" /></label>}
+    {!configurationError && <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Current password<PasswordInput autoComplete="current-password" toggleLabel="current password" value={password} onChange={e => setPassword(e.target.value)} className="app-control mt-2 h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="Enter password" /></label>}
     {!configurationError && mfaFactorId && <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Google Authenticator code<input inputMode="numeric" value={authCode} onChange={e => setAuthCode(e.target.value)} className="app-control mt-2 h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm tracking-[0.35em] dark:border-slate-700 dark:bg-slate-900" placeholder="000000" /></label>}
     {configurationError && <p className="text-xs text-slate-500">Local demo mode: authentication is simulated.</p>}
     {authError && <ErrorNotice error={authError} operation="Admin Freeze View"></ErrorNotice>}

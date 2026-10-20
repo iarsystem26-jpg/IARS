@@ -1,3 +1,4 @@
+import { educationalUnit } from '../lib/educationalUnit';
 import { selectUploadFile } from '../lib/fileUploads';
 import { errorMessage } from '../lib/errors';
 import ErrorNotice from '../components/ui/ErrorNotice';
@@ -135,8 +136,8 @@ export default function RegisterStatus() {
   return <div className="auth-challenge-background min-h-dvh px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
     <header className="mx-auto mb-6 flex max-w-5xl items-center justify-between gap-3 sm:mb-8">
       <div className="flex min-w-0 items-center gap-3">
-        <button type="button" aria-label="View app logo" aria-haspopup="dialog" className="shrink-0 rounded-full" onClick={() => setImagePreview({ src: `${import.meta.env.BASE_URL}academic-seal-transparent.png`, title: 'App logo', alt: 'IARS Academic Seal' })}>
-          <img src={`${import.meta.env.BASE_URL}academic-seal-transparent.png`} alt="IARS Academic Seal" className="h-11 w-11 rounded-full bg-white object-contain p-0.5 shadow-sm ring-2 ring-gold-400/60 sm:h-12 sm:w-12" />
+        <button type="button" aria-label="View app logo" aria-haspopup="dialog" className="shrink-0 rounded-full" onClick={() => setImagePreview({ src: educationalUnit.logoUrl, title: 'App logo', alt: 'Institution logo' })}>
+          <img src={educationalUnit.logoUrl} alt="Institution logo" className="h-11 w-11 object-contain sm:h-12 sm:w-12" />
         </button>
         <div className="min-w-0"><p className="text-sm font-bold text-slate-900 dark:text-slate-100">Institution Attendance &amp; Records</p><p className="text-xs text-slate-600 dark:text-slate-400">Student admission</p></div>
       </div>

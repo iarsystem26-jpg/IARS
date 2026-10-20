@@ -1,3 +1,4 @@
+import { educationalUnit } from '../lib/educationalUnit';
 import { selectUploadFile } from '../lib/fileUploads';
 import { errorMessage } from '../lib/errors';
 import ErrorNotice from '../components/ui/ErrorNotice';
@@ -387,7 +388,7 @@ const StudentEvents: React.FC = () => {
                       <MapPin size={18} />
                     </div>
                     <span className="mt-1 text-[10px] font-black bg-brand-900 text-white px-2.5 py-0.5 rounded-full shadow-md uppercase">
-                      RMC Campus Quadrangle
+                      {educationalUnit.name || 'Event location'}
                     </span>
                   </div>
 

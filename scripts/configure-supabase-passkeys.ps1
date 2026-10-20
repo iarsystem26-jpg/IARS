@@ -70,7 +70,7 @@ foreach ($taskOrigin in $Origins) {
     throw "Invalid origin for RP ID ${RpId}: $taskOrigin"
   }
 }
-$taskBody = @{ passkey_enabled = $true; webauthn_rp_display_name = 'RMC Attendance'; webauthn_rp_id = $RpId; webauthn_rp_origins = ($Origins -join ',') } | ConvertTo-Json
+$taskBody = @{ passkey_enabled = $true; webauthn_rp_display_name = 'IARS'; webauthn_rp_id = $RpId; webauthn_rp_origins = ($Origins -join ',') } | ConvertTo-Json
 $null = Invoke-RestMethod -Method Patch -Uri $taskEndpoint -Headers $taskHeaders -ContentType 'application/json' -Body $taskBody
 $taskVerified = Invoke-RestMethod -Uri $taskEndpoint -Headers $taskHeaders
 if (-not $taskVerified.passkey_enabled -or $taskVerified.webauthn_rp_id -ne $RpId -or $taskVerified.webauthn_rp_origins -ne ($Origins -join ',')) {

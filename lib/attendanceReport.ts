@@ -1,3 +1,4 @@
+import { educationalUnit } from './educationalUnit';
 import { jsPDF } from 'jspdf';
 import { autoTable } from 'jspdf-autotable';
 import { formatManilaDateTime, formatManilaDate, formatManilaTime } from './dateTime';
@@ -38,7 +39,7 @@ const statuses = [
 const labelStatus = (status: ReportRecord['status']) => statuses.find(item => item.key === status)!.label;
 
 export async function loadAttendanceReportLogo(): Promise<Uint8Array> {
-  const response = await fetch(`${import.meta.env.BASE_URL}academic-seal-transparent.png`);
+  const response = await fetch(educationalUnit.logoUrl);
   if (!response.ok) throw new Error('Could not load the school logo. Please try again.');
   return new Uint8Array(await response.arrayBuffer());
 }

@@ -1,3 +1,4 @@
+import { educationalUnit } from '../lib/educationalUnit';
 import { errorMessage } from '../lib/errors';
 import ErrorNotice from '../components/ui/ErrorNotice';
 import { hierarchyPathForRole } from '../lib/workspaceRoutes';
@@ -17,10 +18,13 @@ import { Application, AppEvent, UserProfile, SchoolNode, UserStats } from '../ty
 import Button from '../components/ui/Button';
 import CustomSelect from '../components/ui/CustomSelect';
 import { SensitiveActionModal } from '../components/SensitiveActionModal';
+import { UnitDeletionReview } from '../components/academic/UnitDeletionReview';
 import { Modal } from '../components/ui/Modal';
 import { Collapsible } from '../components/ui/Collapsible';
 import { Page, PageHeader, Surface } from '../components/ui/Page';
 import { DirectoryNodeModal } from '../components/academic/DirectoryNodeModal';
+import InstitutionDirectory from '../components/academic/InstitutionDirectory';
+import { runtimeInstitution } from '../lib/institutionRuntime';
 import OrganizationForm from '../components/academic/OrganizationForm';
 import HierarchyOrganizations from '../components/academic/HierarchyOrganizations';
 import { PresetPickerModal } from '../components/academic/PresetPickerModal';
@@ -326,7 +330,7 @@ const SSGPanel: React.FC = () => {
         profile: {
           name: memberData.name, email: memberData.email, username: memberData.username,
           student_id: memberData.studentId, role: 'student',
-          school_data: { ...serialized.schoolData, school_id: serialized.assignment.campusId || 'school_rmc', academic_assignment: serialized.assignment },
+          school_data: { ...serialized.schoolData, school_id: serialized.assignment.campusId || '', academic_assignment: serialized.assignment },
         },
       }], currentNode.id, currentNode.name, memberData.password);
       setMemberData({ name: '', email: '', username: '', studentId: '', password: '' });
@@ -362,9 +366,9 @@ const SSGPanel: React.FC = () => {
         <div className="relative z-10 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-3">
             <img 
-              src={`${import.meta.env.BASE_URL}academic-seal-transparent.png`} 
-              alt="IARS Academic Seal" 
-              className="w-9 h-9 rounded-full bg-white object-contain p-0.5 ring-2 ring-gold-400/50 shadow-md shrink-0"
+              src={educationalUnit.logoUrl}
+              alt="Institution logo"
+              className="w-9 h-9 object-contain shrink-0"
             />
             <div>
               <h2 className="text-lg font-bold tracking-tight text-white sm:text-xl">{workspaceName} Control Hub</h2>
@@ -387,6 +391,7 @@ const SSGPanel: React.FC = () => {
         ))}
       </div>
 
+      {profile?.role === 'admin' && !runtimeInstitution && path.length === 0 && <InstitutionDirectory />}
       {/* HUB CONTENT */}
       <div className="min-h-[60vh]">
         {tab === 'hub' && (
@@ -934,10 +939,12 @@ const SSGPanel: React.FC = () => {
         )}
       </Modal>
 
-      {sensitiveTarget && <SensitiveActionModal action={sensitiveTarget.action} targetName={sensitiveTarget.node.name}
-        description={sensitiveTarget.action === 'ARCHIVE' ? 'The unit and its children remain available in Archived units. You can restore the unit later.' : 'Only units without children or linked members, applications, officers, or events can be permanently deleted.'}
+      {sensitiveTarget?.action === 'DELETE' && <UnitDeletionReview nodeId={sensitiveTarget.node.id} name={sensitiveTarget.node.name}
+        onClose={() => setSensitiveTarget(null)} onDeleted={() => { setSensitiveTarget(null); changePath([]); refresh(); }} />}
+      {sensitiveTarget?.action === 'ARCHIVE' && <SensitiveActionModal action={sensitiveTarget.action} targetName={sensitiveTarget.node.name}
+        description="The unit and its children remain available in Archived units. You can restore the unit later."
         onClose={() => setSensitiveTarget(null)} onConfirm={async confirmation => {
-          await appData.performSensitiveAction(sensitiveTarget.action === 'ARCHIVE' ? 'archiveSchoolNode' : 'deleteSchoolNode', sensitiveTarget.node.id, confirmation);
+          await appData.performSensitiveAction('archiveSchoolNode', sensitiveTarget.node.id, confirmation);
           setSensitiveTarget(null); refresh();
         }} />}
     </Page>

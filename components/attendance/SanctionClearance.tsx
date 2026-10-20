@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { unitStorageKey } from '../../lib/educationalUnit';
 import { Award, CalendarCheck, CheckCircle2, HeartHandshake, ShieldCheck, Sparkles, TrendingUp } from 'lucide-react';
 import Button from '../ui/Button';
 import { Modal } from '../ui/Modal';
@@ -10,7 +11,7 @@ interface SanctionClearanceProps {
 }
 
 export default function SanctionClearance({ uid, name, clearanceId }: SanctionClearanceProps) {
-  const storageKey = `rmc:sanction-clearance:${uid}`;
+  const storageKey = unitStorageKey(`sanction-clearance:${uid}`);
   const [open, setOpen] = useState(() => {
     try {
       return localStorage.getItem(storageKey) !== clearanceId;

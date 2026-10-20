@@ -2,6 +2,7 @@ import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import SanctionClearance from './SanctionClearance';
+import { unitStorageKey } from '../../lib/educationalUnit';
 
 beforeEach(() => localStorage.clear());
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
@@ -21,7 +22,7 @@ it('remembers dismissal and allows the student to reopen the celebration', async
 });
 
 it('celebrates a later clearance and keeps dismissals separate for each student', () => {
-  localStorage.setItem('rmc:sanction-clearance:student-1', 'clearance-1');
+  localStorage.setItem(unitStorageKey('sanction-clearance:student-1'), 'clearance-1');
   const view = render(<SanctionClearance uid="student-1" name="Alex" clearanceId="clearance-2" />);
   expect(screen.getByRole('dialog')).toBeVisible();
   view.unmount();

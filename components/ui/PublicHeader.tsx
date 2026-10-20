@@ -1,3 +1,4 @@
+import { educationalUnit } from '../../lib/educationalUnit';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
@@ -25,12 +26,13 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ onSection, onLogin }) => {
 
   return <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-base ${scrolled ? 'bg-white/85 dark:bg-slate-900/85 backdrop-blur-md shadow-sm py-4 border-b border-slate-200/50 dark:border-slate-800/50' : 'bg-transparent py-6'}`}>
     <nav aria-label="Main navigation" className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 sm:flex-nowrap sm:px-6">
-      <button type="button" className="flex min-w-0 items-center gap-2 text-left sm:gap-3" onClick={() => openSection('home')} aria-label="IARS home">
-        <img src={`${import.meta.env.BASE_URL}academic-seal-transparent.png`} alt="IARS Academic Seal" className="w-10 h-10 rounded-full object-contain p-0.5 shadow-lg ring-2 ring-gold-400/50 hover:scale-105 transition-transform shrink-0" />
-        <span className="min-w-0">
-          <span className="block font-black uppercase tracking-tighter leading-none text-brand-900 dark:text-white text-base">IARS</span>
-          <span className="hidden text-[9px] font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400 sm:block">Attendance & Records System</span>
+      <button type="button" className="flex min-w-0 shrink-0 flex-col items-start text-left" onClick={() => openSection('home')} aria-label="IARS home">
+          {educationalUnit.name && <img src={educationalUnit.logoUrl} alt={`${educationalUnit.name} logo`} className="mb-2 h-10 w-10 rounded-lg bg-white object-contain" />}
+        <span className="relative block w-28 sm:w-36">
+          <img src={educationalUnit.wordmarkUrl} alt="IARS — Institution Attendance & Records System" className="block w-full" />
+          <img src={educationalUnit.wordmarkUrl} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 hidden w-full brightness-0 invert [clip-path:inset(0_0_0_41%)] dark:block" />
         </span>
+        {educationalUnit.name && <span className="mt-1 block max-w-28 truncate text-[9px] font-bold text-emerald-600 dark:text-emerald-400 sm:max-w-36">{educationalUnit.name}</span>}
       </button>
       <div className="hidden lg:flex items-center gap-4 lg:gap-6 bg-white/60 dark:bg-slate-800/60 px-6 py-3 rounded-full border border-slate-200/60 dark:border-slate-700/60 backdrop-blur-sm shadow-sm">
         {[

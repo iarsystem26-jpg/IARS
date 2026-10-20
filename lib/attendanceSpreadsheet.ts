@@ -1,3 +1,4 @@
+import { educationalUnit } from './educationalUnit';
 import type { Worksheet } from 'exceljs';
 import type { ReportRecord } from './attendanceReport';
 import { formatManilaDate, formatManilaDateTime, formatManilaTime } from './dateTime';
@@ -126,12 +127,12 @@ export async function createAttendanceWorkbook(options: SpreadsheetOptions, char
   const { Workbook } = await import('exceljs');
   const workbook = new Workbook();
   const generatedAt = options.generatedAt ?? Date.now();
-  workbook.creator = 'RMC Attendance'; workbook.created = new Date(generatedAt);
+  workbook.creator = 'IARS'; workbook.created = new Date(generatedAt);
   const summary = summarizeSpreadsheet(options.records);
   const sheet = workbook.addWorksheet('Summary', { properties: { tabColor: { argb: gold } } });
   sheet.columns = Array.from({ length: 9 }, () => ({ width: 14 }));
   sheet.views = [{ showGridLines: false }];
-  heading(sheet, 1, 'RMC  |  ATTENDANCE REPORT');
+  heading(sheet, 1, `${educationalUnit.displayName}  |  ATTENDANCE REPORT`);
   textLine(sheet, 2, `Generated ${formatManilaDateTime(generatedAt)}  •  Asia/Manila`);
   textLine(sheet, 3, options.scope, Math.max(42, Math.ceil(options.scope.length / 120) * 16));
   const metrics = [
@@ -202,7 +203,7 @@ export async function createAttendanceWorkbook(options: SpreadsheetOptions, char
       }
     });
     table.pageSetup = { paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0, printTitlesRow: '1:1' };
-    table.headerFooter.oddFooter = '&LRMC Attendance&RPage &P of &N';
+    table.headerFooter.oddFooter = '&LIARS&RPage &P of &N';
   }
   details.getCell('H1').note = 'Attendance date in Asia/Manila, based on the event/session date. Time in is blank when no check-in was recorded.';
   details.getCell('C1').note = 'Student IDs are stored as text to preserve leading zeros.';

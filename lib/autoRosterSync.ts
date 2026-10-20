@@ -1,4 +1,5 @@
 import type { AppEvent } from '../types';
+import { unitStorageKey } from './educationalUnit';
 import { offlineRosters, prepareOfflineAttendance, recentRosterPreparations } from './offlineAttendance';
 import { prefetchScannerPhotos } from './scannerPhotos';
 import { offlineRosterUnavailableReason } from './offlineRosterEligibility';
@@ -42,7 +43,7 @@ export async function refreshAutomaticRosters(owner: string, events: AppEvent[],
     }
   };
   const run = async () => {
-    if (navigator.locks?.request) await navigator.locks.request(`rmc-roster-refresh:${owner}`, execute);
+    if (navigator.locks?.request) await navigator.locks.request(unitStorageKey(`roster-refresh:${owner}`), execute);
     else await execute();
   };
   const promise = run().finally(() => busy.delete(owner));

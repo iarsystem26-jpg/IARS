@@ -1,3 +1,4 @@
+import { educationalUnit } from '../../lib/educationalUnit';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { legalLinks, privacyContact } from '../../lib/legal';
@@ -6,10 +7,12 @@ const PublicFooter: React.FC = () => (
   <footer className="border-t border-slate-200 bg-white px-6 py-10 text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
     <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-2">
       <div className="space-y-3">
-        <Link to="/" className="inline-flex items-center gap-3 font-bold text-brand-900 dark:text-white">
-          <img src={`${import.meta.env.BASE_URL}academic-seal-transparent.png`} alt="" className="h-9 w-9 rounded-full object-contain p-0.5" />
-          IARS · Attendance & Records System
-        </Link>
+          {educationalUnit.name && <img src={educationalUnit.logoUrl} alt={`${educationalUnit.name} logo`} className="mb-2 h-10 w-10 rounded-lg bg-white object-contain" />}
+        <div className="relative w-56 max-w-full">
+          <img src={educationalUnit.wordmarkUrl} alt="IARS — Institution Attendance & Records System" className="w-full" />
+          <img src={educationalUnit.wordmarkUrl} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 hidden w-full brightness-0 invert [clip-path:inset(0_0_0_41%)] dark:block" />
+        </div>
+        {educationalUnit.name && <p className="font-semibold">{educationalUnit.name}</p>}
         <p className="max-w-md text-sm leading-relaxed">Your place for school attendance, event schedules, and student records.</p>
         <p className="text-sm">For account help, contact your school officer. For privacy requests, contact {privacyContact.office}.
           {privacyContact.email && <> <a className="break-words font-semibold underline underline-offset-4" href={`mailto:${privacyContact.email}`}>{privacyContact.email}</a></>}

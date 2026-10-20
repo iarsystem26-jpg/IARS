@@ -1,8 +1,11 @@
 import { toast, type OperationProgress } from './toast';
 import { supabase } from './supabase';
 import { retainedUploadFile } from './fileUploads';
+import { unitStorageKey } from './educationalUnit';
+import { runtimeInstitution } from './institutionRuntime';
 
-export const GOOGLE_DRIVE_GAS_URL = import.meta.env.VITE_GOOGLE_DRIVE_GAS_URL || '';
+// A new institution must never send its sessions or uploads to the hub's Apps Script.
+export const GOOGLE_DRIVE_GAS_URL = runtimeInstitution ? runtimeInstitution.driveGasUrl || '' : import.meta.env.VITE_GOOGLE_DRIVE_GAS_URL || '';
 export const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 export const PROFILE_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
 
@@ -20,7 +23,7 @@ type DriveResponse = Partial<DriveImageResult> & {
 };
 
 const temporaryCapabilities = new Map<string, string>();
-const capabilityKey = (id: string) => `rmc.drive-capability.${id}`;
+const capabilityKey = (id: string) => unitStorageKey(`drive-capability.${id}`);
 function readCapability(id: string) {
   try { return sessionStorage.getItem(capabilityKey(id)) || temporaryCapabilities.get(id); }
   catch { return temporaryCapabilities.get(id); }
@@ -83,7 +86,7 @@ function readableResponseError(text: string, status: number) {
   return plain.slice(0, 300) || responseError({}, status);
 }
 
-async function request<T = DriveResponse>(body: Record<string, unknown>, progress: OperationProgress): Promise<T> {
+async function request<T = DriveResponse>(body: Record<string, unknown>, progress: OperationProgress, signal?: AbortSignal): Promise<T> {
   if (!GOOGLE_DRIVE_GAS_URL) throw new Error('Photo uploads are temporarily unavailable. Please try again after the image service is configured.');
   const { data: { session } } = await supabase.auth.getSession();
   const managementToken = body.action === 'create' ? crypto.randomUUID() + crypto.randomUUID()
@@ -99,6 +102,7 @@ async function request<T = DriveResponse>(body: Record<string, unknown>, progres
     credentials: 'omit',
     referrerPolicy: 'no-referrer',
     redirect: 'follow',
+    signal,
   });
   progress.step(3);
   const text = await response.text();
@@ -124,12 +128,12 @@ function unwrap(payload: DriveResponse): DriveImageResult {
 
 const drivePhases = ['Checking your photo', 'Preparing your photo', 'Working on your photo', 'Finishing up'];
 
-export async function createDriveImage(file: File, personName: string, studentId: string) {
+export async function createDriveImage(file: File, personName: string, studentId: string, category: DriveImageCategory = 'photos') {
   return toast.track(async progress => {
     validateProfileImage(file);
     progress.step(1);
     const dataUrl = await fileAsDataUrl(file);
-    return unwrap(await request({ action: 'create', name: personName, studentId, mimeType: file.type, dataUrl }, progress));
+    return unwrap(await request({ action: 'create', category, name: personName, studentId, mimeType: file.type, dataUrl }, progress));
   }, 'Upload photo', 'Photo uploaded', drivePhases);
 }
 
@@ -234,4 +238,24 @@ export function driveImageCandidates(url: string | undefined) {
     `https://drive.usercontent.google.com/download?id=${encodedId}&export=view&authuser=0`,
     url,
   ]));
+}
+
+export type DriveImageCategory = 'photos' | 'logos' | 'banners';
+export type DriveFolder = { id: string; name: string; url: string; system: boolean };
+export type DriveFolderResponse = { folder: DriveFolder; folders?: DriveFolder[] };
+const folderReads = new Map<string, Promise<DriveFolderResponse>>();
+export async function manageDriveFolder(action: 'setup' | 'read' | 'create' | 'update' | 'delete', folderId?: string, name?: string) {
+  const body = { action: `folder_${action}`, folderId, name };
+  if (action === 'read' || action === 'setup') {
+    const key = `${action}:${folderId || 'root'}`;
+    const pending = folderReads.get(key);
+    if (pending) return pending;
+    // Share StrictMode's repeated mount read; the browser renders progress inline.
+    const result = request<DriveFolderResponse>(body, { step() {}, complete() {}, fail() {} }, AbortSignal.timeout(45000))
+      .finally(() => folderReads.delete(key));
+    folderReads.set(key, result);
+    return result;
+  }
+  const label = { create: 'Create folder', update: 'Rename folder', delete: 'Move folder to trash' }[action];
+  return toast.track(progress => request<DriveFolderResponse>(body, { ...progress, step: phase => progress.step(phase - 2) }, AbortSignal.timeout(45000)), label, undefined, ['Updating Drive', 'Finishing up']);
 }

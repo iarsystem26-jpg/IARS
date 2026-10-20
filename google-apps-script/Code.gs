@@ -1,8 +1,20 @@
 /**
- * RMC Attendance profile image API.
+ * IARS profile image API.
  * Deploy as a web app: execute as the owner, who has access: anyone.
  */
 const DRIVE_FOLDER_ID = '1T2wZaDYshXpUb_LQihfO8dILaas2QbjN';
+function driveRootId_() {
+  const config = typeof driveDeploymentConfig_ === 'function' ? driveDeploymentConfig_() : {};
+  if (typeof driveDeploymentConfig_ === 'function' && !config.folderId) throw new Error('Configure UNIT_DRIVE_FOLDER_ID or run educational unit Drive provisioning first.');
+  return config.folderId || DRIVE_FOLDER_ID; // Existing installations retain their files.
+}
+
+function driveAuthConfig_() {
+  const properties = PropertiesService.getScriptProperties();
+  const config = typeof driveDeploymentConfig_ === 'function' ? driveDeploymentConfig_() : {};
+  return { url: config.supabaseUrl || properties.getProperty('SUPABASE_URL'), key: config.publishableKey || properties.getProperty('SUPABASE_PUBLISHABLE_KEY') };
+}
+
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
@@ -26,8 +38,9 @@ function removeSupabaseKeepAlive() {
 
 function pingSupabase() {
   const properties = PropertiesService.getScriptProperties();
-  const url = properties.getProperty('SUPABASE_URL');
-  const key = properties.getProperty('SUPABASE_PUBLISHABLE_KEY');
+  const authConfig = driveAuthConfig_();
+  const url = authConfig.url;
+  const key = authConfig.key;
   if (!url || !/^https:\/\/[a-z0-9.-]+(?::\d+)?\/?$/i.test(url) || !key) {
     throw new Error('Configure SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY in Script properties first.');
   }
@@ -76,6 +89,7 @@ function doPost(e) {
       return json_({ success: true, gmailAuthorized: true, installed: ScriptApp.getProjectTriggers().some(function (trigger) { return trigger.getHandlerFunction() === 'deliverAuthEmails'; }) });
     }
     const actor = actor_(request.accessToken);
+    if (['folder_setup', 'folder_read', 'folder_create', 'folder_update', 'folder_delete'].indexOf(action) >= 0) return json_(manageDriveFolder_(request, actor));
     if (action === 'create') {
       return json_({ success: true, ...createFile_(request, actor) });
     }
@@ -172,11 +186,11 @@ function deliverAuthEmails() {
         if (!prepared.message) { if (draft) draft.deleteDraft(); properties.deleteProperty('AUTH_EMAIL_JOB_' + item.id); return; }
         const message = prepared.message;
         const options = { name: 'Institution Attendance and Records System', htmlBody: message.html + '<p style="color:#64748b;font-size:10px;">Delivery reference: ' + markerFor(item.id) + '</p>' };
-        if (!logo) {
-          const image = UrlFetchApp.fetch('https://iars-blond.vercel.app/academic-seal-transparent.png', { muteHttpExceptions: true });
-          if (image.getResponseCode() === 200) logo = image.getBlob().setName('iars-seal.png');
+        if (message.logoUrl && (!logo || logo.url !== message.logoUrl)) {
+          const image = UrlFetchApp.fetch(message.logoUrl, { muteHttpExceptions: true });
+          if (image.getResponseCode() === 200) logo = { url: message.logoUrl, blob: image.getBlob().setName('iars-logo.png') };
         }
-        if (logo) { options.inlineImages = { iarsSeal: logo }; options.htmlBody = options.htmlBody.split('https://iars-blond.vercel.app/academic-seal-transparent.png').join('cid:iarsSeal'); }
+        if (logo && logo.url === message.logoUrl) { options.inlineImages = { iarsSeal: logo.blob }; options.htmlBody = options.htmlBody.split(message.logoUrl).join('cid:iarsSeal'); }
         const plain = message.text + '\n\nDelivery reference: ' + markerFor(item.id);
         if (!draft) { entry.state = 'creating'; remember(item.id, entry); draft = GmailApp.createDraft(message.to, message.subject, plain, options); }
         else draft.update(message.to, message.subject, plain, options);
@@ -214,8 +228,9 @@ function actor_(token) {
   if (!token) return null; // Registration uploads happen before signup.
   if (typeof token !== 'string' || token.length > 8192) throw new Error('Invalid session.');
   const properties = PropertiesService.getScriptProperties();
-  const url = properties.getProperty('SUPABASE_URL');
-  const key = properties.getProperty('SUPABASE_PUBLISHABLE_KEY');
+  const authConfig = driveAuthConfig_();
+  const url = authConfig.url;
+  const key = authConfig.key;
   if (!url || !/^https:\/\/[a-z0-9.-]+(?::\d+)?\/?$/i.test(url) || !key) throw new Error('Image service authentication is not configured.');
   const options = { headers: { apikey: key, Authorization: 'Bearer ' + token }, muteHttpExceptions: true };
   const identity = UrlFetchApp.fetch(url.replace(/\/$/, '') + '/auth/v1/user', options);
@@ -311,7 +326,13 @@ function managedFile_(fileId) {
   const file = DriveApp.getFileById(String(fileId || ''));
   const parents = file.getParents();
   while (parents.hasNext()) {
-    if (parents.next().getId() === DRIVE_FOLDER_ID) return file;
+    if (parents.next().getId() === driveRootId_()) return file;
+  }
+  if (typeof folderWithinUnit_ === 'function') {
+    const nestedParents = file.getParents();
+    while (nestedParents.hasNext()) {
+      try { folderWithinUnit_(nestedParents.next().getId()); return file; } catch (_) {}
+    }
   }
   throw new Error('The requested file is outside the profile image folder.');
 }
@@ -320,8 +341,9 @@ function createFile_(request, actor) {
   const capability = tokenHash_(request.managementToken);
   const blob = blobFromRequest_(request).setName(filename_(request, request.mimeType));
   if (!actor) limitAnonymousUploads_();
-  const file = DriveApp.getFolderById(DRIVE_FOLDER_ID).createFile(blob);
-  file.setDescription(JSON.stringify({ owner: actor || null, capability: capability }));
+  const destination = typeof categoryFolder_ === 'function' ? categoryFolder_(request.category || 'photos') : DriveApp.getFolderById(driveRootId_());
+  const file = destination.createFile(blob);
+  file.setDescription(JSON.stringify({ owner: actor || null, capability: capability, ...(request.category ? { category: request.category } : {}) }));
   return { id: file.getId(), name: file.getName(), url: publicUrl_(file) };
 }
 
@@ -330,7 +352,7 @@ function updateFile_(request, actor) {
   // Drive's Apps Script File API cannot replace binary content in place reliably;
   // create the replacement first, then trash the old object after it succeeds.
   if (request.dataUrl) {
-    const replacement = createFile_(Object.assign({}, request, { managementToken: request.replacementManagementToken }), actor);
+    const replacement = createFile_(Object.assign({}, request, { managementToken: request.replacementManagementToken, category: ownership_(file).category || 'photos' }), actor);
     file.setTrashed(true);
     return replacement;
   }
@@ -354,10 +376,26 @@ function deleteFile_(request, actor) {
 
 function listFiles_(actor) {
   const files = [];
-  const iterator = DriveApp.getFolderById(DRIVE_FOLDER_ID).getFiles();
+  const iterator = DriveApp.getFolderById(driveRootId_()).getFiles();
   while (iterator.hasNext()) {
     const file = iterator.next();
     if (ownership_(file).owner === actor && ALLOWED_MIME_TYPES.indexOf(file.getMimeType()) >= 0) files.push({ id: file.getId(), name: file.getName(), url: publicUrl_(file) });
+  }
+  if (typeof folderWithinUnit_ === 'function') {
+    function visit(folder, depth) {
+      if (depth > 32 || folder.isTrashed()) return;
+      const children = folder.getFolders();
+      while (children.hasNext()) {
+        const child = children.next();
+        const items = child.getFiles();
+        while (items.hasNext()) {
+          const item = items.next();
+          if (ownership_(item).owner === actor && ALLOWED_MIME_TYPES.indexOf(item.getMimeType()) >= 0) files.push({ id: item.getId(), name: item.getName(), url: publicUrl_(item) });
+        }
+        visit(child, depth + 1);
+      }
+    }
+    visit(DriveApp.getFolderById(driveRootId_()), 0);
   }
   return files;
 }

@@ -1,3 +1,4 @@
+import PasswordInput from '../ui/PasswordInput';
 import { useState } from 'react';
 import { useAuth } from '../AuthContext';
 import { supabase, configureEnrollmentConfirmation } from '../../lib/supabase';
@@ -96,7 +97,7 @@ export default function AdminEnrollmentConfirmation({children}: {children?: Reac
     <Modal open={open} onClose={close} closeOnBackdrop={!busy} title={unlocked ? 'Confirm enrollment settings change' : 'Verify Super Admin identity'}>
       <form className="space-y-4" onSubmit={event => void confirm(event)}>
         {unlocked && <p>Save policy: <strong>{settings.mode}</strong>; email: <strong>{settings.email_kind}</strong>. These changes affect new signups immediately.</p>}
-        <label className="block">Current password<input required type="password" autoComplete="current-password" disabled={busy} value={password} onChange={e => setPassword(e.target.value)} className="app-control mt-2 w-full rounded-xl border p-3" /></label>
+        <label className="block">Current password<PasswordInput required toggleLabel="current password" autoComplete="current-password" disabled={busy} value={password} onChange={e => setPassword(e.target.value)} className="app-control mt-2 w-full rounded-xl border p-3" /></label>
         {needsMfa && <label className="block">Authenticator code<input required pattern="[0-9]{6}" autoComplete="one-time-code" inputMode="numeric" disabled={busy} value={code} onChange={e => setCode(e.target.value)} className="app-control mt-2 w-full rounded-xl border p-3" /></label>}
         <label className="block">Type initiate to confirm<input required autoComplete="off" disabled={busy} value={typed} onChange={e => setTyped(e.target.value)} className="app-control mt-2 w-full rounded-xl border p-3" /></label>
         {error && <ErrorNotice error={error} operation="Enrollment confirmation settings" />}

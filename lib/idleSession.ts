@@ -1,5 +1,6 @@
+import { unitStorageKey } from './educationalUnit';
 export const IDLE_TIMEOUT_MS = 15 * 60 * 1000;
-export const IDLE_STORAGE_PREFIX = 'rmc-idle-session:';
+export const IDLE_STORAGE_PREFIX = unitStorageKey('idle-session:');
 
 type Activity = { sessionId: string; lastActivity: number; expired?: boolean };
 

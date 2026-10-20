@@ -1,0 +1,31 @@
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { expect, it, vi } from 'vitest';
+vi.mock('./InstitutionPreview', () => ({ default: () => <div>Preview</div> }));
+vi.mock('../../lib/institutions', () => ({ createInstitution: vi.fn() }));
+vi.mock('../../lib/googleDrive', () => ({ retainProfileImage: vi.fn() }));
+import InstitutionSetupPage from './InstitutionSetupPage';
+import { createInstitution } from '../../lib/institutions';
+
+it('preserves typed details across steps and submits the chosen administrator password', async () => {
+  const user = userEvent.setup();
+  const created = vi.fn();
+  render(<InstitutionSetupPage onClose={vi.fn()} onCreated={created} />);
+  for (const [label, value] of [['Institution name', 'North Academy'], ['Short name', 'NA'], ['Institution ID', 'north-academy'], ['Registered legal name', 'North Inc.'], ['Institution address', 'Davao City'], ['Support email', 'support@example.com'], ['Privacy contact email', 'privacy@example.com']]) await user.type(screen.getByLabelText(label, { exact: false }), value);
+  expect(screen.getByLabelText('Institution name')).toHaveValue('North Academy');
+  await user.click(screen.getByRole('button', { name: 'Continue' }));
+  for (const [label, value] of [['Administrator name', 'Owner'], ['Administrator email', 'owner@example.com'], ['Administrator username', 'school.owner']]) await user.type(screen.getByLabelText(label), value);
+  const password = screen.getByLabelText('Administrator password', { exact: true });
+  await user.clear(password);
+  await user.type(password, 'ManualPassword12!');
+  await user.click(screen.getByRole('button', { name: 'Continue' }));
+  expect(screen.getByText('Step 3 of 4')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Back' }));
+  expect(screen.getByLabelText('Administrator password', { exact: true })).toHaveValue('ManualPassword12!');
+  await user.click(screen.getByRole('button', { name: 'Continue' }));
+  await user.click(screen.getByRole('button', { name: 'Continue' }));
+  expect(screen.getByText('North Academy')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Create institution' }));
+  await waitFor(() => expect(created).toHaveBeenCalledOnce());
+  expect(createInstitution).toHaveBeenCalledWith(expect.objectContaining({ name: 'North Academy', adminUsername: 'school.owner' }), undefined, undefined, 'ManualPassword12!');
+});

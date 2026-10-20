@@ -1,3 +1,4 @@
+import { educationalUnit } from './educationalUnit';
 import { formatHourDuration } from './duration';
 import { jsPDF } from 'jspdf';
 import { autoTable, type UserOptions } from 'jspdf-autotable';
@@ -43,7 +44,7 @@ export function createAttendanceTranscript(data: AttendanceTranscript, logo: Uin
     title: `${schoolName} Attendance & Sanction Transcript - ${data.student.id}`,
     author: schoolName,
     subject: 'System-automated student attendance and sanction record',
-    creator: 'RMC Project Regalia System',
+    creator: 'IARS',
   });
 
   const base: UserOptions = {
@@ -133,7 +134,7 @@ export function createAttendanceTranscript(data: AttendanceTranscript, logo: Uin
     doc.setFont('helvetica', 'bold').setFontSize(8).setTextColor(navy);
     doc.text('SYSTEM-AUTOMATED DOCUMENT', margin, height - 18);
     doc.setFont('helvetica', 'normal').setFontSize(7.5).setTextColor(muted);
-    doc.text('Generated automatically by RMC Project Regalia from recorded system data.', margin, height - 13);
+    doc.text('Generated automatically by IARS from recorded system data.', margin, height - 13);
     doc.text(`Generated: ${generated} (Asia/Manila)`, margin, height - 8);
     doc.text(`Page ${page} of ${pages}`, width - margin, height - 8, { align: 'right' });
   }
@@ -141,7 +142,7 @@ export function createAttendanceTranscript(data: AttendanceTranscript, logo: Uin
 }
 
 export async function downloadAttendanceTranscript(data: AttendanceTranscript) {
-  const response = await fetch(`${import.meta.env.BASE_URL}academic-seal-transparent.png`);
+  const response = await fetch(educationalUnit.logoUrl);
   if (!response.ok) throw new Error('Could not load the transcript logo.');
   const logo = new Uint8Array(await response.arrayBuffer());
   const doc = createAttendanceTranscript(data, logo);

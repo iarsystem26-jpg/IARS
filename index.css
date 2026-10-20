@@ -620,13 +620,14 @@ a {
 .app-button--sm { min-height: var(--control-height-sm); }
 .app-button--md { min-height: var(--control-height); }
 .app-button--lg { min-height: var(--control-height-lg); }
+.institution-branded.dark { --color-selected: rgb(var(--palette-brand-900)); --color-selected-text: rgb(var(--palette-brand-200)); }
 .app-button--primary { background: var(--color-brand-strong); color: var(--color-on-brand); }
 .app-button--primary:hover:not(:disabled) { background: var(--color-brand); }
 .app-button--secondary { border-color: var(--color-border); background: var(--color-surface); color: var(--color-text); }
 .app-button--secondary:hover:not(:disabled) { border-color: var(--color-brand); background: var(--color-selected); color: var(--color-selected-text); }
 /* Action controls use solid fills; gradients are reserved for decorative surfaces. */
 :is(button, [role='button'], .app-button) { background-image: none; }
-.app-button--gold { background: var(--color-accent); color: var(--color-brand-strong); }
+.app-button--gold { background: var(--color-accent); color: var(--color-on-accent, var(--color-brand-strong)); }
 .app-button--gold:hover:not(:disabled) { background: color-mix(in srgb, var(--color-accent) 85%, var(--color-accent-strong)); }
 .app-button--danger { --button-tone: var(--color-danger-text); }
 .app-button--warning { --button-tone: var(--color-warning-text); }

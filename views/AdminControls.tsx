@@ -1,10 +1,11 @@
+import AdminDriveFolders from '../components/admin/AdminDriveFolders';
 import { RoleAssignment } from '../components/admin/RoleAssignment';
 import { hasPermission } from '../lib/accessControl';
 import { canAccessSystemControls, systemControlPermissions } from '../lib/systemControlsAccess';
 import React from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { legalLinks } from '../lib/legal';
-import { Snowflake, Activity, DollarSign, ShieldCheck, Shield, Users, Video, RefreshCw, ChevronRight } from 'lucide-react';
+import { Snowflake, Activity, DollarSign, ShieldCheck, Shield, Users, Video, RefreshCw, ChevronRight, FolderOpen } from 'lucide-react';
 import { useAuth } from '../components/AuthContext';
 import { Page, PageHeader, Surface } from '../components/ui/Page';
 import CustomSelect from '../components/ui/CustomSelect';
@@ -20,9 +21,10 @@ import AdminEnrollmentConfirmation from '../components/admin/AdminEnrollmentConf
 import AdminEmailDashboard from '../components/admin/AdminEmailDashboard';
 import { LegalKind } from '../lib/legalPages';
 
-type TabId = 'freeze' | 'health' | 'payment' | 'rbac' | 'accounts' | 'legal' | 'video' | 'updates' | 'enrollment' | 'email';
+type TabId = 'drive' | 'freeze' | 'health' | 'payment' | 'rbac' | 'accounts' | 'legal' | 'video' | 'updates' | 'enrollment' | 'email';
 
 const subPages: { id: TabId; label: string; icon: React.ElementType; description: string }[] = [
+  { id: 'drive', label: 'Drive folders', icon: FolderOpen, description: 'Organize uploads and manage this educational unit’s folders' },
   { id: 'email', label: 'Email', icon: ShieldCheck, description: 'Monitor delivery, preview emails, manage the queue and configure enrollment verification' },
   { id: 'updates', label: 'App Updates', icon: RefreshCw, description: 'Keep connected browsers on the latest deployed app' },
   { id: 'freeze', label: 'Freeze Controls', icon: Snowflake, description: 'Manage institutional and node-level system freezes' },
@@ -36,7 +38,7 @@ const subPages: { id: TabId; label: string; icon: React.ElementType; description
 
 const navigationGroups: { label: string; pages: TabId[] }[] = [
   { label: 'Access & identity', pages: ['email', 'accounts', 'rbac'] },
-  { label: 'System operations', pages: ['updates', 'freeze', 'health', 'payment'] },
+  { label: 'System operations', pages: ['drive', 'updates', 'freeze', 'health', 'payment'] },
   { label: 'Public content', pages: ['video', 'legal'] },
 ];
 
@@ -49,7 +51,7 @@ const AdminControls: React.FC = () => {
   const activeTab = subPages.some(page => page.id === requestedTab) ? requestedTab as TabId : 'freeze';
 
   const tabPermissions = systemControlPermissions;
-  const allowedPages = subPages.filter(page => (page.id === 'legal' || page.id === 'video' || page.id === 'updates' || page.id === 'enrollment' || page.id === 'email') ? profile?.role === 'admin' : hasPermission(profile?.role, tabPermissions[page.id]));
+  const allowedPages = subPages.filter(page => (page.id === 'drive' || page.id === 'legal' || page.id === 'video' || page.id === 'updates' || page.id === 'enrollment' || page.id === 'email') ? profile?.role === 'admin' : hasPermission(profile?.role, tabPermissions[page.id]));
   const requestedPage = new URLSearchParams(location.search).get('page');
   const legalKinds: LegalKind[] = ['privacy', 'deletion', 'agreement', 'terms'];
   const legalKind = legalKinds.includes(requestedPage as LegalKind) ? requestedPage as LegalKind : 'privacy';
@@ -133,6 +135,7 @@ const AdminControls: React.FC = () => {
       </Surface>}
 
       <div className="max-w-[96rem]">
+        {selectedTab === 'drive' && profile?.role === 'admin' && <AdminDriveFolders />}
         {selectedTab === 'freeze' && <AdminFreezeView actorName={profile?.name} />}
         {selectedTab === 'health' && <AdminSystemHealthView />}
         {selectedTab === 'payment' && <AdminPaymentReminderView actorName={profile?.name} />}

@@ -1,3 +1,4 @@
+import { educationalUnit } from './educationalUnit';
 import { jsPDF } from 'jspdf';
 import type { ClearanceCertificate } from './clearanceCertificates';
 import { formatManilaDate } from './dateTime';
@@ -77,7 +78,7 @@ export async function prepareClearanceCertificatePdf(c: ClearanceCertificate, sv
   const context = canvas.getContext('2d'); if (!context) throw new Error('Could not prepare the certificate.');
   context.fillStyle = '#FFFFFF'; context.fillRect(0, 0, 768, 768); context.drawImage(image, 32, 32, 704, 704);
   const [response, fontResponse] = await Promise.all([
-   fetch(`${import.meta.env.BASE_URL}academic-seal-transparent.png`),
+   fetch(educationalUnit.logoUrl),
    fetch(`${import.meta.env.BASE_URL}fonts/UnifrakturMaguntia-Book.ttf`),
   ]);
   if (!response.ok) throw new Error('Could not load the school seal. Please retry.');

@@ -1,3 +1,4 @@
+import { educationalUnit } from '../lib/educationalUnit';
 import { errorMessage } from '../lib/errors';
 import ErrorNotice from '../components/ui/ErrorNotice';
 import { getDigitalIdRole, renderDigitalId } from '../lib/digitalId';
@@ -100,9 +101,9 @@ const StudentQR: React.FC = () => {
       <Surface className="w-full overflow-hidden shadow-lg transition-all">
         <div className="bg-brand-gradient flex items-center gap-4 p-5 sm:p-6 border-b-2 border-gold-400">
           <img
-            src={`${import.meta.env.BASE_URL}academic-seal-transparent.png`}
-            alt="IARS Academic Seal"
-            className="w-16 h-16 shrink-0 rounded-full object-contain p-0.5 ring-2 ring-gold-400/60"
+            src={educationalUnit.logoUrl}
+            alt="Institution logo"
+            className="w-16 h-16 shrink-0 object-contain"
           />
           <div className="min-w-0 text-left">
             <p className="text-gold-300 text-[10px] font-bold uppercase tracking-widest mb-1.5">Digital access card</p>

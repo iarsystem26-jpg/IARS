@@ -1,3 +1,4 @@
+import PasswordInput from '../ui/PasswordInput';
 import { selectUploadFile, retainedUploadFile } from '../../lib/fileUploads';
 import ErrorNotice from '../ui/ErrorNotice';
 import { useEffect, useId, useRef, useState } from 'react';
@@ -65,7 +66,7 @@ export default function OrganizationForm({ organization, profile, onClose, initi
       if (!name.trim()) throw new Error('Enter an organization name.');
       if (!logo && !organization?.logo_url) throw new Error('Choose an organization logo.');
       if (keyRequired && ((!organization?.key_required && !key) || (key && (key.length < 6 || key.length > 128)))) throw new Error('Use a join key with 6 to 128 characters.');
-      if (logo) uploaded = await createDriveImage(logo, name.trim(), `organization-${organization?.id || crypto.randomUUID()}`);
+      if (logo) uploaded = await createDriveImage(logo, name.trim(), `organization-${organization?.id || crypto.randomUUID()}`, 'logos');
       await appData.organizationCommand(organization ? 'update' : 'create', {
         organizationId: organization?.id, name: name.trim(), description, node_id: organization ? organization.node_id : node || null,
         ...(canAssign ? { head_ids: heads } : {}), visible, joining, key_required: keyRequired,
@@ -116,7 +117,7 @@ export default function OrganizationForm({ organization, profile, onClose, initi
         { value: 'closed', label: 'Closed — heads add members' }, { value: 'open', label: 'Open — join immediately' }, { value: 'approval', label: 'Applications — head approval required' },
       ]} />
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={keyRequired} onChange={e => setKeyRequired(e.target.checked)} /> Require a join key</label>
-      {keyRequired && <label className="app-field-label">{organization?.key_required ? 'Replace join key (leave blank to keep)' : 'Join key'}<input autoComplete="new-password" type="password" className="input-field mt-2" minLength={6} maxLength={128} value={key} onChange={e => setKey(e.target.value)} /><span className="mt-1 block text-xs font-normal">Share the key with eligible students. Saved keys cannot be displayed.</span></label>}
+      {keyRequired && <label className="app-field-label">{organization?.key_required ? 'Replace join key (leave blank to keep)' : 'Join key'}<PasswordInput autoComplete="new-password" toggleLabel="join key" className="input-field mt-2" minLength={6} maxLength={128} value={key} onChange={e => setKey(e.target.value)} /><span className="mt-1 block text-xs font-normal">Share the key with eligible students. Saved keys cannot be displayed.</span></label>}
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={visible} onChange={e => setVisible(e.target.checked)} /> Visible in the public organization directory</label>
       {!visible && <p className="text-sm text-slate-500">Members and heads retain access. Public discovery and self joining are hidden.</p>}
     </div>

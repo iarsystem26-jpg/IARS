@@ -3,7 +3,7 @@ import { requestAuthEmail } from './emailDelivery';
 import { hotState } from './hotState';
 import { reconcileData } from './reconcileData';
 import { toast, type OperationProgress } from './toast';
-import { supabase, requireConfiguration, verifyPassword, executeSensitiveAction, type SensitiveConfirmation } from './supabase';
+import { supabase, requireConfiguration, verifyPassword, executeSensitiveAction, beginVerifiedUnitDeletion, type SensitiveConfirmation } from './supabase';
 import { UserProfile, UserStats, Application, AppEvent, SchoolNode, ExcuseApplication, CoreRole, CustomRole, PaymentInfo, SystemFreezeState, NodeFreezeState, Organization, OrganizationMembership, OrganizationSanctionRequest } from '../types';
 import { setMockDataRef, hasPermission } from './accessControl';
 import { findNodeById, findNodePath, flattenDirectory, getDirectorySubtree, isNodeInSubtree, profileMatchesDirectorySection } from './academicDirectory';
@@ -11,6 +11,7 @@ import { isEventRecipient, canManageEventInScope } from './eventAudience';
 import { publicDriveImageUrl } from './googleDrive';
 import { googleRequest } from './googleAuth';
 import { clearOfflineRosters } from './offlineAttendance';
+import type { UnitDeletionPreview } from './unitDeletion';
 
 type Student = UserProfile & { stats: UserStats; sanction_logs: any[] };
 type Snapshot = {
@@ -261,6 +262,15 @@ export const appData = {
     await refreshAfterWrite(progress);
     return result;
   }, confirmation.typedAction === 'DELETE' ? 'Delete record' : 'Archive record'),
+  previewUnitDeletion: (target: string) => rpc<UnitDeletionPreview>('rmc_preview_unit_deletion', { target }),
+  beginUnitDeletion: async (target: string, password: string, code: string) => {
+    const access = await beginVerifiedUnitDeletion(target, password, code);
+    return { ...access, confirm: (confirmation: Parameters<typeof access.confirm>[0], plan: Parameters<typeof access.confirm>[1]) => trackWrite(async progress => {
+      const result = await access.confirm(confirmation, plan);
+      await refreshAfterWrite(progress);
+      return result;
+    }, 'Delete reviewed records') };
+  },
   validateEnrollment: async (person: Partial<UserProfile>, enrollmentKey: string, phase: number) => {
     const errors = await rpc<Record<string, string>>('rmc_validate_enrollment', { person, enrollment_key: enrollmentKey || null, phase });
     if (Object.keys(errors).length) throw new Error(Object.values(errors).join(' '));

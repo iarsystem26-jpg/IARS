@@ -1,6 +1,14 @@
 import { supabase, requireConfiguration } from './supabase';
+import { runtimeInstitution, institutionLink } from './institutionRuntime';
 export async function requestAuthEmail(action: 'confirmation' | 'recovery', email: string) {
   requireConfiguration();
+  if (runtimeInstitution) {
+    const redirectTo = institutionLink(runtimeInstitution.slug);
+    const result = action === 'recovery' ? await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), { redirectTo })
+      : await supabase.auth.resend({ type: 'signup', email: email.trim().toLowerCase(), options: { emailRedirectTo: redirectTo } });
+    if (result.error) throw new Error('The institution could not send this email. Try again shortly or contact its administrator.');
+    return { accepted: true as const, cooldownSeconds: 120 };
+  }
   const {data,error} = await supabase.functions.invoke('rmc-email-request',{body:{action,email:email.trim().toLowerCase()}});
   if (error) {
     const details = await error.context?.json?.().catch(()=>null);

@@ -1,3 +1,4 @@
+import PasswordInput from '../ui/PasswordInput';
 import { errorMessage } from '../../lib/errors';
 import ErrorNotice from '../ui/ErrorNotice';
 import React, { useEffect, useId, useState } from 'react';
@@ -118,7 +119,7 @@ export default function AccountFreezeControls() {
       <div className="space-y-4"><ul className="max-h-40 space-y-2 overflow-y-auto rounded-xl bg-slate-50 p-3 text-sm dark:bg-slate-900">{action?.ids.map(id => { const account = accounts.find(item => item.uid === id); return <li key={id} className="break-words">{account?.name} <span className="text-xs text-slate-500">({account?.username})</span></li>; })}</ul>
         {action?.frozen && action.ids.includes(profile.uid) && <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950/50 dark:text-amber-200">You selected your own account. Your workspace will be paused after confirmation. Another unfrozen admin must restore your access.</p>}
         <label className="block text-sm font-semibold">Reason<textarea rows={2} maxLength={2000} value={reason} onChange={e => setReason(e.target.value)} className="input-field mt-1" /></label>
-        {!configurationError && <label className="block text-sm font-semibold">Current password<input type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} className="input-field mt-1" /></label>}
+        {!configurationError && <label className="block text-sm font-semibold">Current password<PasswordInput toggleLabel="current password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} className="input-field mt-1" /></label>}
         {factor && <label className="block text-sm font-semibold">Google Authenticator code<input inputMode="numeric" autoComplete="one-time-code" value={code} onChange={e => setCode(e.target.value)} className="input-field mt-1" /></label>}
         {error && <ErrorNotice error={error} operation="Account Freeze Controls"></ErrorNotice>}
       </div>

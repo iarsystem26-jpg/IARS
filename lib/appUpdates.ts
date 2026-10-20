@@ -1,6 +1,8 @@
 import { configurationError, supabase } from './supabase';
+import { unitStorageKey } from './educationalUnit';
+import { runtimeBackend } from './institutionRuntime';
 
-const revisionKey = 'rmc-app-refresh-revision';
+const revisionKey = unitStorageKey('app-refresh-revision');
 let revision: string | null = null;
 let checking = false;
 let refreshing = false;
@@ -20,8 +22,8 @@ export async function fetchDeployedVersion(): Promise<string | null> {
 async function readRevision(): Promise<string | null> {
   if (configurationError) return null;
   // Deliberately public and independent of the visitor's session, including frozen accounts.
-  const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/rmc_app_release?id=eq.1&select=revision`;
-  const response = await fetch(url, { cache: 'no-store', headers: { apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY }, signal: AbortSignal.timeout(6000) });
+  const url = `${runtimeBackend.url}/rest/v1/rmc_app_release?id=eq.1&select=revision`;
+  const response = await fetch(url, { cache: 'no-store', headers: { apikey: runtimeBackend.key }, signal: AbortSignal.timeout(6000) });
   if (!response.ok) return null;
   const data = await response.json();
   return typeof data[0]?.revision === 'string' ? data[0].revision : null;
@@ -31,7 +33,7 @@ export async function refreshApp(target: string, nextRevision?: string) {
   if (refreshing || !navigator.onLine) return;
   // Prevent a misconfigured CDN from producing an endless reload loop.
   try {
-    const last = JSON.parse(sessionStorage.getItem('rmc-last-app-reload') || 'null');
+    const last = JSON.parse(sessionStorage.getItem(unitStorageKey('last-app-reload')) || 'null');
     if (last?.target === target && Date.now() - last.at < 60000) return;
   } catch { /* Storage is optional. */ }
   refreshing = true;
@@ -45,7 +47,7 @@ export async function refreshApp(target: string, nextRevision?: string) {
       await Promise.all(names.filter(name => name.startsWith('workbox-') && name.endsWith(`${location.origin}/`)).map(name => caches.delete(name)));
     }
     if (nextRevision) rememberRevision(nextRevision);
-    try { sessionStorage.setItem('rmc-last-app-reload', JSON.stringify({ target, at: Date.now() })); } catch { /* Optional loop guard. */ }
+    try { sessionStorage.setItem(unitStorageKey('last-app-reload'), JSON.stringify({ target, at: Date.now() })); } catch { /* Optional loop guard. */ }
     const url = new URL(location.href);
     url.searchParams.set('_app_refresh', `${target}-${Date.now()}`);
     // A new navigation after unregistering bypasses the old worker and HTTP cache.

@@ -1,3 +1,4 @@
+import { educationalUnit } from '../lib/educationalUnit';
 import { selectUploadFile, retainedUploadFile } from '../lib/fileUploads';
 import { errorMessage } from '../lib/errors';
 import ErrorNotice from '../components/ui/ErrorNotice';
@@ -153,7 +154,7 @@ const StudentProfile: React.FC = () => {
       }
       const { data: factors } = await supabase.auth.mfa.listFactors();
       for (const f of factors?.all || []) if (f.status === 'unverified') await supabase.auth.mfa.unenroll({ factorId: f.id });
-      const { data, error } = await toast.result(() => supabase.auth.mfa.enroll({ factorType: 'totp', issuer: 'RMC Attendance' }), 'Prepare authenticator', 'Authenticator ready to verify');
+      const { data, error } = await toast.result(() => supabase.auth.mfa.enroll({ factorType: 'totp', issuer: educationalUnit.appName }), 'Prepare authenticator', 'Authenticator ready to verify');
       if (error) throw error;
       setFactorId(data.id); setFactorUri(data.totp.uri); setFactorSecret(data.totp.secret); setFactorCreatedAt(new Date().toISOString()); setShow2FASetup(true);
     } catch (error) { setFactorError(errorMessage(error)); }

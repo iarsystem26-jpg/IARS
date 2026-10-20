@@ -59,6 +59,7 @@ export function DirectoryNodeModal({ open, parent, node, onClose, onSave, onCrea
   return (
     <Modal open={open} onClose={onClose} title={node ? 'Edit academic unit' : 'Establish unit'} description="Names are customizable; semantic types keep registration and targeting accurate." size="md" footer={<><Button variant="secondary" onClick={onClose}>Cancel</Button><Button aria-label={node ? 'Save unit' : 'Establish unit'} variant="gold" onClick={save} disabled={!name.trim() || saving}>Save unit</Button></>}>
       <div className="space-y-4">
+        {['campus','school','education_unit'].includes(type) && <p className="rounded-xl bg-slate-50 p-3 text-xs text-slate-600 dark:bg-slate-900 dark:text-slate-300">This adds an academic unit inside the current institution. For a separate database, logo, and dashboard theme, use Add institution in Independent institutions.</p>}
         {saveError && <ErrorNotice error={saveError} operation="Directory Node Modal"></ErrorNotice>}
         <label className="block text-sm font-bold text-slate-700 dark:text-slate-200">Unit name<input aria-label="Unit designation" value={name} onChange={(event) => setName(event.target.value)} className="app-control mt-1.5 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm dark:border-slate-700 dark:bg-slate-900" placeholder="e.g. STEM-12-Newton or College of Computing" /></label>
         <CustomSelect

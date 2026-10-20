@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { unitStorageKey } from './educationalUnit';
 import type { AppEvent, UserProfile } from '../types';
 import { getDistanceFromLatLonInMeters } from './geolocation';
 
@@ -19,8 +20,8 @@ export type QueuedAttendance = {
   state: 'pending' | 'rejected' | 'synced'; attempts: number; error?: string; receipt?: Record<string, any>;
 };
 type Stored = { id: string; owner: string; kind: 'roster' | 'scan' | 'photo'; state?: QueuedAttendance['state']; eventId?: string; preparedAt?: number; iv: Uint8Array; cipher: ArrayBuffer };
-const DB_NAME = 'rmc-offline-attendance-v1';
-const CHANGE = 'rmc_offline_attendance';
+const DB_NAME = unitStorageKey('offline-attendance-v1');
+const CHANGE = unitStorageKey('offline-attendance');
 let dbPromise: Promise<IDBDatabase> | undefined;
 const busy = new Map<string, Promise<void>>();
 const syncAgain = new Set<string>();

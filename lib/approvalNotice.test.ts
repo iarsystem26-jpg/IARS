@@ -1,5 +1,6 @@
 import { beforeEach, expect, it, vi } from 'vitest';
 import { claimApprovalNotice } from './approvalNotice';
+import { unitStorageKey } from './educationalUnit';
 
 const api = vi.hoisted(() => ({ getUser: vi.fn(), updateUser: vi.fn() }));
 vi.mock('./supabase', () => ({ supabase: { auth: api } }));
@@ -14,7 +15,7 @@ it('records a timestamp only on the first view', async () => {
   expect(api.updateUser).toHaveBeenCalledOnce();
 });
 it('migrates the old browser preference into the backend without showing approval again', async () => {
-  localStorage.setItem('rmc:dashboard-opened:student', 'true');
+  localStorage.setItem(unitStorageKey('dashboard-opened:student'), 'true');
   expect(await claimApprovalNotice('student')).toBe(false);
   expect(api.updateUser).toHaveBeenCalledOnce();
 });

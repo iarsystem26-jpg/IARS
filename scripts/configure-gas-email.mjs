@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import crypto from 'node:crypto';
 import vm from 'node:vm';
 import { spawnSync } from 'node:child_process';
-import { renderAuthEmail } from '../supabase/functions/_shared/authEmail.ts';
 import { encryptEmail } from '../supabase/functions/_shared/emailQueue.ts';
 
 // The PowerShell wrapper supplies the management token over stdin. Never log it.
@@ -13,13 +12,21 @@ process.loadEnvFile('.env.local');
 if (fs.existsSync('.env.server.local')) process.loadEnvFile('.env.server.local');
 const projectUrl = process.env.VITE_SUPABASE_URL;
 const ref = new URL(projectUrl).hostname.split('.')[0];
-if (ref !== 'wpivcedgktsrdsvhsuuu') throw new Error('Link the IARS production Supabase project before configuring email.');
+if (!process.env.IARS_EXPECTED_PROJECT_REF || ref !== process.env.IARS_EXPECTED_PROJECT_REF) throw new Error('Set IARS_EXPECTED_PROJECT_REF to the verified educational unit project reference.');
+const siteUrl = process.env.IARS_SITE_URL;
+if (!siteUrl || new URL(siteUrl).protocol !== 'https:' || new URL(siteUrl).origin !== siteUrl.replace(/\/$/, '')) throw new Error('Set IARS_SITE_URL to this educational unit’s HTTPS origin.');
+// The shared renderer reads the same server-only settings in Node and Edge Functions.
+globalThis.Deno = { env: { get: name => process.env[name] } };
+const { renderAuthEmail } = await import('../supabase/functions/_shared/authEmail.ts');
 const scriptId = JSON.parse(fs.readFileSync('.clasp.json', 'utf8')).scriptId;
 if (!scriptId) throw new Error('Connect the IARS Apps Script project with clasp first.');
-const gasUrl = process.env.VITE_GOOGLE_DRIVE_GAS_URL;
+const pendingDrive = fs.existsSync('supabase/.temp/drive-service.json') ? JSON.parse(fs.readFileSync('supabase/.temp/drive-service.json', 'utf8')) : null;
+const gasUrl = process.env.VITE_GOOGLE_DRIVE_GAS_URL || (pendingDrive?.scriptId === scriptId ? pendingDrive.url : null);
 let emailGasUrl;
-const owner = 'iarsystem26@gmail.com';
-const credentials = JSON.parse(fs.readFileSync(`${process.env.USERPROFILE}/.clasprc.json`,'utf8')).tokens.iarsystem26;
+const owner = process.env.IARS_GAS_OWNER_EMAIL;
+const claspAccount = process.env.IARS_CLASP_ACCOUNT;
+if (!owner || !claspAccount) throw new Error('Set IARS_GAS_OWNER_EMAIL and IARS_CLASP_ACCOUNT for this unit.');
+const credentials = JSON.parse(fs.readFileSync(`${process.env.USERPROFILE}/.clasprc.json`,'utf8')).tokens[claspAccount];
 if (!credentials || !managementToken || !gasUrl) throw new Error('Google and Supabase operator credentials are required.');
 async function jsonApi(url,token,method = 'GET',body) {
  const response = await fetch(url,{ method, headers: { Authorization: `Bearer ${token}`,'Content-Type':'application/json' }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
@@ -53,6 +60,8 @@ if (!config.secret || !config.encryptionKey || !config.hookSecret || config.work
 if (!activate) {
  await management('/secrets','POST',[
   {name:'AUTH_EMAIL_WORKER_SECRET',value:config.secret},{name:'AUTH_EMAIL_ENCRYPTION_KEY',value:config.encryptionKey},{name:'SEND_EMAIL_HOOK_SECRET',value:config.hookSecret},
+  {name:'IARS_SITE_URL',value:siteUrl},{name:'IARS_INSTITUTION_NAME',value:process.env.VITE_INSTITUTION_NAME || 'Institution Attendance & Records System'},
+  {name:'IARS_INSTITUTION_LOGO',value:process.env.VITE_INSTITUTION_LOGO || '/iars-icon.png'},
  ]);
  console.log('Configured server-only email secrets.');
  const files = content.files.map(file => ({ name:file.name,type:file.type,source:file.source }));
@@ -94,7 +103,7 @@ if (!health?.success || !health.gmailAuthorized || !health.installed) {
  console.log('Verified Gmail authorization and the every-minute delivery trigger.');
  if (sendTestEmail) {
  // Send a real smoke test only when explicitly requested by the operator.
- const message = renderAuthEmail(owner,'IARS email delivery is ready','This test confirms that the IARS email worker is sending through GmailApp.','Open IARS website','https://iars-blond.vercel.app/');
+ const message = renderAuthEmail(owner,'IARS email delivery is ready','This test confirms that the IARS email worker is sending through GmailApp.','Open IARS website',`${siteUrl.replace(/\/$/, '')}/`);
  const event = `setup-test:${crypto.randomUUID()}`;
  const payload = await encryptEmail(message,config.encryptionKey);
  await management('/database/query','POST',{query:`insert into public.rmc_auth_email_queue(event_key,payload) values ('${event}','${payload}');`});

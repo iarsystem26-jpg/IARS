@@ -4,7 +4,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { MemoryRouter, useLocation, useNavigate } from 'react-router-dom';
 import NavigationMemory, { useSmartBack } from './NavigationMemory';
 import { usePageMemory } from './usePageMemory';
-import { isReturnDestination, readReturnHistory, writeMemory } from '../lib/navigationMemory';
+import { isReturnDestination, readReturnHistory, writeMemory, NAVIGATION_PREFIX } from '../lib/navigationMemory';
 
 const auth = vi.hoisted(() => ({ user: { uid: 'alice' } as { uid: string } | null, loading: false }));
 vi.mock('./AuthContext', () => ({ useAuth: () => auth }));
@@ -95,7 +95,7 @@ it('restores scroll after reload and saves subsequent scrolling', async () => {
   await waitFor(() => expect(window.scrollTo).toHaveBeenCalledWith({ left: 0, top: 420, behavior: 'instant' }));
   Object.defineProperty(window, 'scrollY', { configurable: true, value: 650 });
   fireEvent.scroll(window);
-  expect(JSON.parse(sessionStorage.getItem('rmc:navigation:v1:alice:scroll:/student/records')!)).toEqual({ x: 0, y: 650 });
+  expect(JSON.parse(sessionStorage.getItem(NAVIGATION_PREFIX + 'alice:scroll:/student/records')!)).toEqual({ x: 0, y: 650 });
   Object.defineProperty(window, 'scrollY', { configurable: true, value: 0 });
 });
 
@@ -123,7 +123,7 @@ it('keeps the workspace scroll position when switching control sections and lega
   expect(readReturnHistory('alice')).toEqual(['/admin/controls?tab=enrollment', '/admin/controls?tab=updates']);
   Object.defineProperty(window, 'scrollY', { configurable: true, value: 240 });
   fireEvent.scroll(window);
-  expect(JSON.parse(sessionStorage.getItem('rmc:navigation:v1:alice:scroll:/admin/controls')!)).toEqual({ x: 0, y: 240 });
+  expect(JSON.parse(sessionStorage.getItem(NAVIGATION_PREFIX + 'alice:scroll:/admin/controls')!)).toEqual({ x: 0, y: 240 });
   fireEvent.click(screen.getByText('Records'));
   await waitFor(() => expect(window.scrollTo).toHaveBeenCalledWith({ left: 0, top: 0, behavior: 'instant' }));
   Object.defineProperty(window, 'scrollY', { configurable: true, value: 0 });

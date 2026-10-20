@@ -1,3 +1,4 @@
+import { educationalUnit } from '../../lib/educationalUnit';
 import { hierarchyPathForRole } from '../../lib/workspaceRoutes';
 import AttendanceConfirmation from '../attendance/AttendanceConfirmation';
 import { formatManilaDate } from '../../lib/dateTime';
@@ -385,7 +386,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
           <div className="flex items-center gap-2.5 select-none">
-            <img src={`${import.meta.env.BASE_URL}academic-seal-transparent.png`} alt="IARS Academic Seal" className="w-8 h-8 rounded-full bg-white object-contain p-0.5 ring-2 ring-gold-400/50 shadow shrink-0" />
+            <img src={educationalUnit.logoUrl} alt="Institution logo" className="w-8 h-8 object-contain shrink-0" />
             <h1 className="font-extrabold text-base tracking-tight text-white">IARS</h1>
           </div>
         </div>
@@ -418,8 +419,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         >
           <div className="shrink-0 p-5 pt-[max(1.25rem,env(safe-area-inset-top))] border-b border-brand-800 flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <img src={`${import.meta.env.BASE_URL}academic-seal-transparent.png`} alt="IARS Academic Seal" className="w-10 h-10 rounded-full bg-white object-contain p-0.5 ring-2 ring-gold-400/60 shadow-lg" />
-              <div><h2 className="font-extrabold text-xl leading-none">IARS</h2><p className="text-emerald-400 text-[10px] font-semibold uppercase tracking-wider mt-1">Attendance &amp; Records</p></div>
+              <img src={educationalUnit.logoUrl} alt="Institution logo" className="w-10 h-10 object-contain shrink-0" />
+              <div><h2 className="font-extrabold text-xl leading-none">IARS</h2><p className="text-emerald-400 text-[10px] font-semibold uppercase tracking-wider mt-1">{educationalUnit.name || 'Attendance & Records'}</p></div>
             </div>
             <button type="button" aria-label="Close navigation" onClick={() => setIsMobileMenuOpen(false)} className="min-h-11 min-w-11 inline-flex items-center justify-center rounded-lg text-gold-200 hover:text-white hover:bg-brand-800">
               <X size={20} />
@@ -445,7 +446,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
       <aside id="desktop-main-navigation" data-collapsed={isSidebarCollapsed} className={`app-desktop-sidebar hidden md:flex flex-col fixed inset-y-0 left-0 z-30 bg-brand-900 text-white border-r border-brand-800 shadow-2xl transition-[width] duration-base ease-standard ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
         <div className={`relative shrink-0 p-4 border-b border-brand-800 flex items-center justify-between ${isSidebarCollapsed ? 'overflow-visible' : 'overflow-hidden'}`}>
-          <div className="flex items-center gap-3 min-w-0"><img src={`${import.meta.env.BASE_URL}academic-seal-transparent.png`} alt="IARS Academic Seal" className="w-10 h-10 rounded-full bg-white object-contain p-0.5 ring-2 ring-gold-400/60 shadow-md shrink-0" /><div aria-hidden={isSidebarCollapsed} className="app-sidebar-label min-w-0 truncate"><h2 className="font-extrabold text-lg leading-tight">IARS</h2><p className="text-emerald-400 text-[10px] font-semibold uppercase tracking-wider truncate">Attendance &amp; Records</p></div></div>
+          <div className="flex items-center gap-3 min-w-0"><img src={educationalUnit.logoUrl} alt="Institution logo" className="w-10 h-10 object-contain shrink-0" /><div aria-hidden={isSidebarCollapsed} className="app-sidebar-label min-w-0 truncate"><h2 className="font-extrabold text-lg leading-tight">IARS</h2><p className="text-emerald-400 text-[10px] font-semibold uppercase tracking-wider truncate" title={educationalUnit.name}>{educationalUnit.name || 'Attendance & Records'}</p></div></div>
           {!isSidebarCollapsed ? (
             <button type="button" aria-label="Collapse sidebar" title="Collapse sidebar" aria-expanded={true} aria-controls="desktop-main-navigation" onClick={() => setIsSidebarCollapsed(true)} className="min-h-11 min-w-11 shrink-0 inline-flex items-center justify-center rounded-lg text-gold-200 hover:text-white hover:bg-brand-800"><PanelLeftClose size={18} /></button>
           ) : (
